@@ -21,7 +21,7 @@ public class Detection {
 
   private boolean ebeanManifestFound;
 
-  private boolean testEbeanProperties;
+  private boolean testProperties;
 
   /**
    * logback or log4j.
@@ -64,15 +64,15 @@ public class Detection {
   }
 
   public String state() {
-    return "mf:" + ebeanManifestFound + " tep:" + testEbeanProperties + " top:" + getTopPackage() + " entities:" + getEntityPackage();
+    return "mf:" + ebeanManifestFound + " tep:" + testProperties + " top:" + getTopPackage() + " entities:" + getEntityPackage();
   }
 
   public boolean isEbeanManifestFound() {
     return ebeanManifestFound;
   }
 
-  public boolean isTestEbeanProperties() {
-    return testEbeanProperties;
+  public boolean isTestPropertiesFound() {
+    return testProperties;
   }
 
   public String getLoggerType() {
@@ -220,7 +220,7 @@ public class Detection {
   }
 
   private void findTestProperties() {
-    testEbeanProperties = (findTestResourceAny("application-test.yml", "application-test.properties", "test-ebean.properties") != null);
+    testProperties = (findTestResourceAny("application-test.yml", "application-test.properties", "test-ebean.properties") != null);
   }
 
 
@@ -360,7 +360,7 @@ public class Detection {
    * Set that the test-ebean.properties has been set.
    */
   public void addedTestProperties() {
-    testEbeanProperties = true;
+    testProperties = true;
   }
 
   public void addedGenerateMigration(String name) {

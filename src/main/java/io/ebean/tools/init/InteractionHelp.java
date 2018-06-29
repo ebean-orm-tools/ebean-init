@@ -299,7 +299,7 @@ public class InteractionHelp {
       outputAllGood("ebean.mf", "controlling packages that are enhanced");
       //outputManifest();
     }
-    if (detection.isTestEbeanProperties()) {
+    if (detection.isTestPropertiesFound()) {
       outputAllGood("test-ebean.properties", "configuration when running tests");
     }
     if (detection.isTestLoggingEntry()) {

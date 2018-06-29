@@ -71,10 +71,10 @@ public class ProjectDetection {
 
 
     DetectionMeta meta = new DetectionMeta();
+    meta.setMainSource(sourceDirs, sourceJava, sourceKotlin);
     meta.setMainOutput(outputDir.getAbsolutePath());
-    meta.setMainSource(sourceDirs);
 
-    meta.setTestSource(sourceTestDirs);
+    meta.setTestSource(sourceTestDirs, sourceTestJava, sourceTestKotlin);
     meta.setTestOutput(meta.getMainOutput());
 
     if (mainResourcesDir != null) {

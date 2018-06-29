@@ -130,7 +130,7 @@ class Interaction {
     if (!detection.isEbeanManifestFound()) {
       options.add("M", "Manifest - add ebean.mf to control enhancement (recommended)");
     }
-    if (!detection.isTestEbeanProperties()) {
+    if (!detection.isTestPropertiesFound()) {
       options.add("P", "Test properties - Add test-ebean.properties to configure Ebean when running tests (recommended)");
     }
     if (!detection.isTestLoggingEntry()) {

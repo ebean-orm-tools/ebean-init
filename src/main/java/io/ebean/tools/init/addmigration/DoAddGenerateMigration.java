@@ -1,16 +1,21 @@
 package io.ebean.tools.init.addmigration;
 
 import io.ebean.tools.init.Detection;
-import io.ebean.tools.init.util.FileCopy;
+import io.ebean.tools.init.DetectionMeta;
 import io.ebean.tools.init.InteractionHelp;
+import io.ebean.tools.init.util.FileCopy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class DoAddGenerateMigration {
 
+  private static final Logger log = LoggerFactory.getLogger(DoAddGenerateMigration.class);
+
   private final Detection detection;
+
   private final InteractionHelp help;
 
   public DoAddGenerateMigration(Detection detection, InteractionHelp help) {
@@ -20,42 +25,51 @@ public class DoAddGenerateMigration {
 
   public void run() {
 
-    List<String> testSourceRoots = detection.getMeta().getTestSource();
-    if (testSourceRoots.isEmpty()) {
+    DetectionMeta meta = detection.getMeta();
+    File ktSrc = meta.getSourceTestKotlin();
+    if (ktSrc != null && ktSrc.exists()) {
+      addKotlinGeneration(main(ktSrc));
+      return;
+    }
+
+    File javaSrc = meta.getSourceTestJava();
+    if (javaSrc == null || !javaSrc.exists()) {
       help.acknowledge("  Unsuccessful - can not determine test source root");
       return;
     }
 
-    File dir = new File(testSourceRoots.get(0));
-    if (!dir.exists()) {
-      throw new RuntimeException("test source root does not exist? "+dir.getAbsolutePath());
+    addJavaGenerator(main(javaSrc));
+  }
+
+  private File main(File src) {
+    File testMain = new File(src, "main");
+    if (!testMain.mkdirs()) {
+      log.error("Error creating src/test directory");
     }
+    return testMain;
+  }
 
-    File testMain = new File(dir, "main");
-    if (!testMain.exists() && !testMain.mkdirs()) {
-      throw new RuntimeException("Failed to make test main directory - " + testMain.getAbsolutePath());
+  private void addJavaGenerator(File srcMain) {
+    try {
+      File mig = new File(srcMain, "GenerateDbMigration.java");
+      FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
+      help.acknowledge("  ... added " + mig.getAbsolutePath());
+      detection.addedGenerateMigration("GenerateDbMigration.java");
+
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to copy GenerateDbMigration.java", e);
     }
+  }
 
-    if (detection.isKotlinInClassPath()) {
-      try {
-        File mig = new File(testMain, "GenerateDbMigration.kt");
-        FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
-        help.acknowledge("  ... added " + mig.getAbsolutePath());
-        detection.addedGenerateMigration("GenerateDbMigration.kt");
+  private void addKotlinGeneration(File srcMain) {
+    try {
+      File mig = new File(srcMain, "GenerateDbMigration.kt");
+      FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
+      help.acknowledge("  ... added " + mig.getAbsolutePath());
+      detection.addedGenerateMigration("GenerateDbMigration.kt");
 
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to copy GenerateDbMigration.kt", e);
-      }
-    } else {
-      try {
-        File mig = new File(testMain, "GenerateDbMigration.java");
-        FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
-        help.acknowledge("  ... added " + mig.getAbsolutePath());
-        detection.addedGenerateMigration("GenerateDbMigration.java");
-
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to copy GenerateDbMigration.java", e);
-      }
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to copy GenerateDbMigration.kt", e);
     }
   }
 }
