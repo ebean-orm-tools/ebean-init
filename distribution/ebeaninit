@@ -16,4 +16,4 @@ fi
 ##
 ## assumes ebean-init.jar is also in .local/bin
 ##
-exec "$JAVACMD" -jar ~/.local/bin/ebean-init.jar "$@"
+exec "$JAVACMD" -jar ~/.local/bin/ebean-init-1.1.jar "$@"
