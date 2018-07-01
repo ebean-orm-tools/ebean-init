@@ -9,9 +9,10 @@ Provides a command line tool to:
 
 ## How to install
 
-- Download ebean-init.jar into ~/.local/bin
-- Download ebeaninit script into ~/.local/bin
-- chmod +x ebeaninit
+- Download [ebean-init.jar](https://github.com/ebean-orm-tools/ebean-init/blob/master/distribution/ebean-init-1.1.jar) into ~/.local/bin
+- Download [ebeaninit](https://github.com/ebean-orm-tools/ebean-init/blob/master/distribution/ebeaninit) script into ~/.local/bin
+- `cd ~/.local/bin`
+- `chmod +x ebeaninit`
 
 ## How to use
 
