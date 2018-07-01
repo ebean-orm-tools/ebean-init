@@ -21,6 +21,8 @@ public class Detection {
 
   private boolean ebeanManifestFound;
 
+  private boolean mainProperties;
+
   private boolean testProperties;
 
   /**
@@ -44,11 +46,11 @@ public class Detection {
 
   private final Set<String> queryBeanPackages = new HashSet<>();
 
-  private final List<File> domainDirs = new ArrayList<>();
+  private final List<File> javaDomainDirs = new ArrayList<>();
+  private final List<File> kotlinDomainDirs = new ArrayList<>();
 
-  private File sourceRootDir;
-
-  private File topPackageDir;
+  private File topJavaPackageDir;
+  private File topKotlinPackageDir;
 
   private final DetectionClassPath classPathDetection = new DetectionClassPath();
 
@@ -69,6 +71,10 @@ public class Detection {
 
   public boolean isEbeanManifestFound() {
     return ebeanManifestFound;
+  }
+
+  public boolean isMainProperties() {
+    return mainProperties;
   }
 
   public boolean isTestPropertiesFound() {
@@ -112,30 +118,43 @@ public class Detection {
   }
 
   public String getTopPackage() {
-    if (topPackageDir == null) {
-      return null;
+    if (topJavaPackageDir != null) {
+      return diff(meta.getSourceJava(), topJavaPackageDir);
     }
-    return diff(sourceRootDir, topPackageDir);
+    if (topKotlinPackageDir != null) {
+      return diff(meta.getSourceKotlin(), topKotlinPackageDir);
+    }
+    return null;
+  }
+
+  public List<File> kotlinDomainDirs() {
+    return kotlinDomainDirs;
   }
 
   public String getEntityPackage() {
-    if (domainDirs.size() != 1) {
-      return null;
-    } else {
-      return diff(sourceRootDir, domainDirs.get(0));
+    if (kotlinDomainDirs.size() == 1) {
+      return diff(meta.getSourceKotlin(), kotlinDomainDirs.get(0));
     }
+    if (javaDomainDirs.size() == 1) {
+      return diff(meta.getSourceJava(), javaDomainDirs.get(0));
+    }
+    return null;
   }
 
   public List<String> getDetectedPackages() {
     List<String> list = new ArrayList<>();
-    for (File domainDir : domainDirs) {
-      list.add(diff(sourceRootDir, domainDir));
+    for (File domainDir : javaDomainDirs) {
+      list.add(diff(meta.getSourceJava(), domainDir));
+    }
+    for (File domainDir : kotlinDomainDirs) {
+      list.add(diff(meta.getSourceKotlin(), domainDir));
     }
     return list;
   }
 
   public void run() throws IOException {
 
+    findMainProperties();
     findEbeanManifest();
     findTestProperties();
     // detect Kotlin or Java
@@ -180,26 +199,34 @@ public class Detection {
   }
 
   private void findTopLevelPackage() {
-    if (meta.getMainSource().size() == 1) {
-      String sourceRoot = meta.getMainSource().get(0);
-      sourceRootDir = new File(sourceRoot);
-      topPackageDir = findUntilSplit(sourceRootDir);
-      if (topPackageDir != null) {
-        findEntityDirs(topPackageDir);
+
+    File sourceJava = meta.getSourceJava();
+    if (sourceJava != null && sourceJava.exists()) {
+      topJavaPackageDir = findUntilSplit(sourceJava);
+      if (topJavaPackageDir != null) {
+        findEntityDirs(topJavaPackageDir, javaDomainDirs);
+      }
+    }
+
+    File sourceKotlin= meta.getSourceKotlin();
+    if (sourceKotlin != null && sourceKotlin.exists()) {
+      topKotlinPackageDir = findUntilSplit(sourceKotlin);
+      if (topKotlinPackageDir != null) {
+        findEntityDirs(topKotlinPackageDir, kotlinDomainDirs);
       }
     }
   }
 
-  private void findEntityDirs(File dir) {
+  private void findEntityDirs(File dir, List<File> collect) {
     if (couldBeDomain(dir.getName())) {
-      domainDirs.add(dir);
+      collect.add(dir);
     }
     File[] files = dir.listFiles();
     if (files != null) {
       for (File sub : files) {
         if (sub.isDirectory()) {
 
-          findEntityDirs(sub);
+          findEntityDirs(sub, collect);
         }
       }
     }
@@ -289,6 +316,16 @@ public class Detection {
     for (String resourceDir : meta.getMainResources()) {
       if (!loadEbeanManifest(new File(resourceDir, "ebean.mf"))) {
         loadEbeanManifest(new File(resourceDir, "META-INF/ebean.mf"));
+      }
+    }
+  }
+
+  private void findMainProperties() {
+    for (String resourceDir : meta.getMainResources()) {
+      if (new File(resourceDir, "application.yml").exists()
+        || new File(resourceDir, "application.properties").exists()
+        || new File(resourceDir, "ebean.properties").exists()) {
+        mainProperties = true;
       }
     }
   }

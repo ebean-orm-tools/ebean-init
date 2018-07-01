@@ -1,6 +1,7 @@
 package io.ebean.tools.init.addfinders;
 
 import io.ebean.tools.init.Detection;
+import io.ebean.tools.init.DetectionMeta;
 import io.ebean.tools.init.InteractionHelp;
 import io.ebean.typequery.generator.Generator;
 import io.ebean.typequery.generator.GeneratorConfig;
@@ -57,37 +58,38 @@ public class DoGenerate {
 
   private GeneratorConfig createConfig() {
 
+    DetectionMeta meta = detection.getMeta();
+
     GeneratorConfig config = new GeneratorConfig();
-    config.setClassesDirectory(detection.getMeta().getMainOutput());
+    config.setClassesDirectory(meta.getMainOutput());
 
-    boolean kotlinInClassPath = detection.isKotlinInClassPath();
-    boolean queryBeanInClassPath = detection.isQueryBeanInClassPath();
-    boolean ebeanElasticInClassPath = detection.isEbeanElasticInClassPath();
+    boolean asKotlin = true;
+    File source = meta.getSourceKotlin();
 
-    if (kotlinInClassPath) {
+    List<File> ktDomains = detection.kotlinDomainDirs();
+    if (ktDomains.isEmpty()) {
+      source = meta.getSourceJava();
+      asKotlin = false;
+    }
+    if (asKotlin) {
       config.setLang("kt");
     }
 
-    List<String> sourceRoots = detection.getMeta().getMainSource();
-    if (sourceRoots == null || sourceRoots.size() != 1) {
-      help.acknowledge("Error - single source root required.");
-      return null;
-    }
+    //FIXME: This does not support multiple packages for entities?
+    String entityPackage = detection.getEntityPackage();
 
-    config.setDestDirectory(sourceRoots.get(0));
+    config.setDestDirectory(source.getAbsolutePath());
 
-    help.acknowledge("  settings used - kotlin:" + kotlinInClassPath
-      + " queryBeans:" + queryBeanInClassPath + " docstore:" + ebeanElasticInClassPath
-      + " package:" + detection.getEntityPackage());
+    help.acknowledge("  settings used - kotlin:" + asKotlin + " package:" + entityPackage);
 
-    config.setEntityBeanPackage(detection.getEntityPackage());
+    config.setEntityBeanPackage(entityPackage);
     if (touchedClasses != null) {
       config.setEntityClassFiles(touchedClasses);
     }
     config.setAddFinderWherePublic(true);
     config.setOverwriteExistingFinders(false);
-    config.setAddFinderWhereMethod(queryBeanInClassPath);
-    config.setAddFinderTextMethod(ebeanElasticInClassPath);
+    config.setAddFinderWhereMethod(false);
+    config.setAddFinderTextMethod(false);
     return config;
   }
 

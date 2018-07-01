@@ -1,4 +1,4 @@
-package io.ebean.tools.init.addtestprops;
+package io.ebean.tools.init.addprops;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.util.FileCopy;
@@ -45,16 +45,16 @@ public class DoAddTestProperties {
 
     } else {
       try {
-        File testProps = new File(testResources, "test-ebean.properties");
+        File testProps = new File(testResources, "application-test.yml");
         if (testProps.exists()) {
           throw new RuntimeException(testProps.getAbsolutePath() + " already exists? leaving as is.");
 
         } else {
-          FileCopy.copy(testProps, "/tp-test-ebean.properties");
+          FileCopy.copy(testProps, "/tp-application-test.yml");
           return testProps;
         }
       } catch (IOException e) {
-        throw new RuntimeException("Failed to copy test-ebean.properties", e);
+        throw new RuntimeException("Failed to copy application-test.yml", e);
       }
     }
   }

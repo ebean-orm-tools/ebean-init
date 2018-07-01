@@ -300,7 +300,7 @@ public class InteractionHelp {
       //outputManifest();
     }
     if (detection.isTestPropertiesFound()) {
-      outputAllGood("test-ebean.properties", "configuration when running tests");
+      outputAllGood("test properties/yml", "configuration when running tests");
     }
     if (detection.isTestLoggingEntry()) {
       outputAllGood(detection.getLoggerType(), "entry for logging SQL when running tests");
@@ -311,10 +311,6 @@ public class InteractionHelp {
 
     plainln(" ");
     plainln(" ");
-  }
-
-  void desc(String content) {
-    plainln("  " + content);
   }
 
   String askYesNo(String content) {

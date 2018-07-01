@@ -1,9 +1,11 @@
 package io.ebean.tools.init;
 
+import ch.qos.logback.classic.Level;
 import io.ebean.tools.init.addfinders.DoGenerate;
 import io.ebean.tools.init.addmanifest.DoAddManifest;
 import io.ebean.tools.init.addmigration.DoAddGenerateMigration;
-import io.ebean.tools.init.addtestprops.DoAddTestProperties;
+import io.ebean.tools.init.addprops.DoAddMainProperties;
+import io.ebean.tools.init.addprops.DoAddTestProperties;
 import io.ebean.tools.init.other.DoDebug;
 import io.ebean.tools.init.util.QuestionOptions;
 import io.ebean.tools.init.watch.FileWatcher;
@@ -12,8 +14,6 @@ import org.fusesource.jansi.AnsiConsole;
 import java.io.File;
 
 class Interaction {
-
-  private Actions actions = new Actions();
 
   private final Detection detection;
 
@@ -24,10 +24,9 @@ class Interaction {
 
   Interaction(Detection detection) {
     this.detection = detection;
-    this.help = new InteractionHelp(detection, actions);
+    this.help = new InteractionHelp(detection, new Actions());
     this.fileWatcher = new FileWatcher(detection, help);
   }
-
 
   void run() {
     try {
@@ -62,6 +61,9 @@ class Interaction {
       case "M":
         executeManifest();
         break;
+      case "A":
+        executeAddMainProperties();
+        break;
       case "P":
         executeAddTestProperties();
         break;
@@ -70,9 +72,6 @@ class Interaction {
         break;
       case "G":
         executeAddDbMigration();
-        break;
-      case "D":
-        executeAddDockerRun();
         break;
       case "F":
         executeGenerateFinders();
@@ -89,6 +88,12 @@ class Interaction {
       case "2":
         stopWatcher();
         break;
+      case "8":
+        loggerDebugOff();
+        break;
+      case "9":
+        loggerDebugOn();
+        break;
     }
   }
 
@@ -99,8 +104,6 @@ class Interaction {
 
   private void startWatcher() {
     String mainOut = detection.getMeta().getMainOutput();
-//    Set<String> entityPackages = detection.getEntityPackages();
-
     File mainOutDir = new File(mainOut);
     if (!mainOutDir.exists()) {
       help.yell("main output dir does not exist? " + mainOut);
@@ -130,8 +133,11 @@ class Interaction {
     if (!detection.isEbeanManifestFound()) {
       options.add("M", "Manifest - add ebean.mf to control enhancement (recommended)");
     }
+    if (!detection.isMainProperties()) {
+      options.add("A", "Application properties - Add application.yml to configure Ebean");
+    }
     if (!detection.isTestPropertiesFound()) {
-      options.add("P", "Test properties - Add test-ebean.properties to configure Ebean when running tests (recommended)");
+      options.add("P", "Test properties - Add application-test.yml to configure Ebean when running tests (recommended)");
     }
     if (!detection.isTestLoggingEntry()) {
       options.add("L", "Logging - Add test logging entry to log SQL when running tests (recommended)");
@@ -147,17 +153,12 @@ class Interaction {
     return options;
   }
 
-
-  private void executeAddDockerRun() {
-    help.acknowledge("  docker run");
-  }
-
   private void executeAddDbMigration() {
     new DoAddGenerateMigration(detection, help).run();
   }
 
   private void executeAddTestLogging() {
-    help.acknowledge("  executeAddTestLogging");
+    help.acknowledge("  Refer to https://ebean-orm.github.io/docs/logging");
   }
 
   private void executeGenerateFinders() {
@@ -175,8 +176,25 @@ class Interaction {
   private void executeAddTestProperties() {
     new DoAddTestProperties(detection, help).run();
   }
+
+  private void executeAddMainProperties() {
+    new DoAddMainProperties(detection, help).run();
+  }
+
   private void executeDebug() {
     new DoDebug(detection, help).run();
+  }
+
+  private void loggerDebugOn() {
+    help.acknowledge("... logging debug ON");
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
+    root.setLevel(Level.DEBUG);
+  }
+
+  private void loggerDebugOff() {
+    help.acknowledge("... logging debug OFF");
+    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
+    root.setLevel(Level.WARN);
   }
 
 }

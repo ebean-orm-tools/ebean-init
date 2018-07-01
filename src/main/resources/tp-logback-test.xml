@@ -41,6 +41,9 @@
   <logger name="io.ebean.cache.COLL" level="TRACE"/>
   <logger name="io.ebean.cache.NATKEY" level="TRACE"/>
 
+  <!-- testing with docker containers -->
+  <logger name="io.ebean.docker" level="TRACE"/>
+
   <!-- elasticSearch query logging -->
   <!--<logger name="io.ebean.ELA" level="TRACE"/>-->
 
