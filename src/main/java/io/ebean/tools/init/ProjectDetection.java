@@ -50,11 +50,6 @@ public class ProjectDetection {
       testResourcesDir = testRes;
     }
 
-//    File testKotlin = new File("src/test/kotlin");
-//    if (testKotlin.exists()) {
-//      testSourceDir = testKotlin;
-//    }
-
     File targetClass = new File("target/classes");
     if (targetClass.exists()) {
       outputDir = targetClass;
@@ -64,10 +59,6 @@ public class ProjectDetection {
     if (outClass.exists()) {
       outputDir = outClass;
     }
-
-    System.out.println("outputDir: "+ outputDir + " main: " + mainResourcesDir);
-
-    System.out.println("sourceTestDirs: " + sourceTestDirs);
 
 
     DetectionMeta meta = new DetectionMeta();

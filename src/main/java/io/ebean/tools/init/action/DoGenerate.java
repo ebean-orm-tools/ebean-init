@@ -1,4 +1,4 @@
-package io.ebean.tools.init.addfinders;
+package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.DetectionMeta;
@@ -16,6 +16,8 @@ public class DoGenerate {
 
   private final InteractionHelp help;
 
+  private List<File> touchedClasses;
+
   public DoGenerate(Detection detection, InteractionHelp help) {
     this.detection = detection;
     this.help = help;
@@ -24,7 +26,9 @@ public class DoGenerate {
   public void generateQueryBeans() {
 
     GeneratorConfig config = createConfig();
-    if (config == null) return;
+    if (config == null) {
+      return;
+    }
 
     Generator generator = new Generator(config);
     try {
@@ -40,15 +44,17 @@ public class DoGenerate {
   public void generateFinders() {
 
     GeneratorConfig config = createConfig();
-    if (config == null) return;
+    if (config == null) {
+      return;
+    }
 
     Generator generator = new Generator(config);
     try {
       generator.generateFinders();
-      help.acknowledge("  ... generated finders: " + generator.getFinders());
+      help.ackDone("  ... generated finders: " + generator.getFinders());
 
       generator.modifyEntityBeansAddFinderField();
-      help.acknowledge("   ... linked finders: " + generator.getFinderLinks());
+      help.ackDone("   ... linked finders: " + generator.getFinderLinks());
 
     } catch (IOException e) {
       help.acknowledge("Error " + e);
@@ -63,16 +69,16 @@ public class DoGenerate {
     GeneratorConfig config = new GeneratorConfig();
     config.setClassesDirectory(meta.getMainOutput());
 
-    boolean asKotlin = true;
-    File source = meta.getSourceKotlin();
+    File source = meta.getSourceJava();
 
-    List<File> ktDomains = detection.kotlinDomainDirs();
-    if (ktDomains.isEmpty()) {
-      source = meta.getSourceJava();
-      asKotlin = false;
-    }
+    boolean asKotlin = detection.isSourceModeKotlin();
     if (asKotlin) {
       config.setLang("kt");
+      source = meta.getSourceKotlin();
+      if (detection.kotlinDomainDirs().isEmpty()) {
+        help.acknowledge("Failed - Can not determine kotlin domain package?");
+        return null;
+      }
     }
 
     //FIXME: This does not support multiple packages for entities?
@@ -80,7 +86,7 @@ public class DoGenerate {
 
     config.setDestDirectory(source.getAbsolutePath());
 
-    help.acknowledge("  settings used - kotlin:" + asKotlin + " package:" + entityPackage);
+    help.ackDone("  settings used - kotlin:" + asKotlin + " package:" + entityPackage);
 
     config.setEntityBeanPackage(entityPackage);
     if (touchedClasses != null) {
@@ -92,8 +98,6 @@ public class DoGenerate {
     config.setAddFinderTextMethod(false);
     return config;
   }
-
-  private List<File> touchedClasses;
 
   public void setEntityClasses(List<File> touchedClasses) {
     this.touchedClasses = touchedClasses;

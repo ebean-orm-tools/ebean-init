@@ -104,4 +104,14 @@ public class DetectionMeta {
   public File getSourceTestKotlin() {
     return sourceTestKotlin;
   }
+
+  /**
+   * Return the source mode that we think should be used.
+   */
+  public SourceMode getSourceMode() {
+    if (sourceKotlin != null) {
+      return SourceMode.KOTLIN;
+    }
+    return SourceMode.JAVA;
+  }
 }

@@ -40,6 +40,8 @@ public class Detection {
    */
   private boolean testLoggingEntry;
 
+  private boolean usingQueryBeans;
+
   private final Set<String> entityPackages = new HashSet<>();
 
   private final Set<String> transactionalPackages = new HashSet<>();
@@ -52,21 +54,44 @@ public class Detection {
   private File topJavaPackageDir;
   private File topKotlinPackageDir;
 
-  private final DetectionClassPath classPathDetection = new DetectionClassPath();
-
   private String dbMigrationFile;
+
+  private SourceMode sourceMode;
+
+  private boolean extraOptions;
 
   public Detection(DetectionMeta meta) {
     this.meta = meta;
     Collections.addAll(domainDirectoryMatch, "domain", "model", "entity", "entities");
+    sourceMode = meta.getSourceMode();
   }
 
   public String toString() {
     return "mf:" + ebeanManifestFound + " entityPkgs:" + entityPackages + " txnPkgs:" + transactionalPackages + " qbPkgs:" + queryBeanPackages;
   }
 
-  public String state() {
-    return "mf:" + ebeanManifestFound + " tep:" + testProperties + " top:" + getTopPackage() + " entities:" + getEntityPackage();
+  public boolean isExtraOptions() {
+    return extraOptions;
+  }
+
+  public void setExtraOptions(boolean extraOptions) {
+    this.extraOptions = extraOptions;
+  }
+
+  public void setUsingQueryBeans() {
+    usingQueryBeans = true;
+  }
+
+  public boolean isUsingQueryBeans() {
+    return usingQueryBeans;
+  }
+
+  public boolean isSourceModeKotlin() {
+    return sourceMode == SourceMode.KOTLIN;
+  }
+
+  public void setSourceMode(SourceMode sourceMode) {
+    this.sourceMode = sourceMode;
   }
 
   public boolean isEbeanManifestFound() {
@@ -99,22 +124,6 @@ public class Detection {
 
   public String getDbMigrationFile() {
     return dbMigrationFile;
-  }
-
-  public Set<String> getEntityPackages() {
-    return entityPackages;
-  }
-
-  public Set<String> getTransactionalPackages() {
-    return transactionalPackages;
-  }
-
-  public Set<String> getQueryBeanPackages() {
-    return queryBeanPackages;
-  }
-
-  public DetectionClassPath getClassPathDetection() {
-    return classPathDetection;
   }
 
   public String getTopPackage() {
@@ -162,7 +171,6 @@ public class Detection {
     findGenerateDbMigration();
     findLogging();
     findTopLevelPackage();
-    findInClassPath();
   }
 
   private void findGenerateDbMigration() {
@@ -178,15 +186,6 @@ public class Detection {
           }
         }
       }
-    }
-  }
-
-  /**
-   * Detect Kotlin, Database type.
-   */
-  private void findInClassPath() {
-    for (String cpEntry : meta.getRuntimeClasspath()) {
-      classPathDetection.check(cpEntry);
     }
   }
 
@@ -352,6 +351,7 @@ public class Detection {
     add(entityPackages, attributes.getValue("entity-packages"));
     add(transactionalPackages, attributes.getValue("transactional-packages"));
     add(queryBeanPackages, attributes.getValue("querybean-packages"));
+    usingQueryBeans = !queryBeanPackages.isEmpty();
   }
 
   /**
@@ -374,16 +374,8 @@ public class Detection {
     return meta;
   }
 
-  public boolean isKotlinInClassPath() {
-    return classPathDetection.isKotlin();
-  }
-
-  public boolean isQueryBeanInClassPath() {
-    return classPathDetection.isEbeanQueryBeans();
-  }
-
-  public boolean isEbeanElasticInClassPath() {
-    return classPathDetection.isEbeanElastic();
+  public void addedMainProperties() {
+    mainProperties = true;
   }
 
   /**
@@ -400,7 +392,13 @@ public class Detection {
     testProperties = true;
   }
 
+  public void addedTestLogging() {
+    testLoggingEntry = true;
+    testLoggingFile = true;
+  }
+
   public void addedGenerateMigration(String name) {
     dbMigrationFile = name;
   }
+
 }

@@ -1,4 +1,4 @@
-package io.ebean.tools.init.addmanifest;
+package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Actions;
 import io.ebean.tools.init.Detection;
@@ -60,7 +60,7 @@ public class DoAddManifest {
         writer.flush();
         writer.close();
 
-        help.acknowledge("  ... added " + file.getAbsolutePath());
+        help.ackDone("  ... added " + file.getAbsolutePath());
         detection.addedEbeanManifest();
 
       } catch (IOException e) {

@@ -1,4 +1,4 @@
-package io.ebean.tools.init.other;
+package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.DetectionMeta;
@@ -24,7 +24,6 @@ public class DoDebug {
     help.outputDebug("test src", meta.getTestSource().toString());
     help.outputDebug("test res", meta.getTestResources().toString());
     help.outputDebug("test out", meta.getTestOutput());
-
   }
 
 }

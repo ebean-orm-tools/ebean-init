@@ -1,12 +1,12 @@
 package io.ebean.tools.init;
 
 import ch.qos.logback.classic.Level;
-import io.ebean.tools.init.addfinders.DoGenerate;
-import io.ebean.tools.init.addmanifest.DoAddManifest;
-import io.ebean.tools.init.addmigration.DoAddGenerateMigration;
-import io.ebean.tools.init.addprops.DoAddMainProperties;
-import io.ebean.tools.init.addprops.DoAddTestProperties;
-import io.ebean.tools.init.other.DoDebug;
+import io.ebean.tools.init.action.DoAddGenerateMigration;
+import io.ebean.tools.init.action.DoAddMainProperties;
+import io.ebean.tools.init.action.DoAddManifest;
+import io.ebean.tools.init.action.DoAddTestResource;
+import io.ebean.tools.init.action.DoDebug;
+import io.ebean.tools.init.action.DoGenerate;
 import io.ebean.tools.init.util.QuestionOptions;
 import io.ebean.tools.init.watch.FileWatcher;
 import org.fusesource.jansi.AnsiConsole;
@@ -32,10 +32,12 @@ class Interaction {
     try {
       help.outputHeading();
       help.outputAllGoodBits();
+      help.outputSourceMode();
 
       boolean quit = false;
       while (!quit) {
         QuestionOptions options = createOptions();
+        help.newCommand();
         help.question("Commands:");
         help.outOps(options);
         String answer = help.askKey("Select an command:", options);
@@ -79,22 +81,36 @@ class Interaction {
       case "T":
         executeGenerateQueryBeans();
         break;
+      case "J":
+        sourceMode(SourceMode.JAVA);
+        break;
+      case "K":
+        sourceMode(SourceMode.KOTLIN);
+        break;
+      case "E":
+        executeExtraOptions();
+        break;
       case "0":
         executeDebug();
         break;
       case "1":
-        startWatcher();
-        break;
-      case "2":
-        stopWatcher();
-        break;
-      case "8":
-        loggerDebugOff();
-        break;
-      case "9":
         loggerDebugOn();
         break;
+      case "2":
+        loggerDebugOff();
+        break;
+      case "3":
+        startWatcher();
+        break;
+      case "4":
+        stopWatcher();
+        break;
     }
+  }
+
+  private void sourceMode(SourceMode sourceMode) {
+    detection.setSourceMode(sourceMode);
+    help.outputSourceMode();
   }
 
 
@@ -131,25 +147,45 @@ class Interaction {
   private QuestionOptions createOptions() {
     QuestionOptions options = new QuestionOptions();
     if (!detection.isEbeanManifestFound()) {
-      options.add("M", "Manifest - add ebean.mf to control enhancement (recommended)");
+      options.add("M", "Manifest","add ebean.mf to control enhancement (recommended)");
     }
     if (!detection.isMainProperties()) {
-      options.add("A", "Application properties - Add application.yml to configure Ebean");
+      options.add("A", "Application properties","Add application.yml to configure Ebean");
     }
     if (!detection.isTestPropertiesFound()) {
-      options.add("P", "Test properties - Add application-test.yml to configure Ebean when running tests (recommended)");
+      options.add("P", "Test properties","Add application-test.yml to configure Ebean when running tests (recommended)");
     }
     if (!detection.isTestLoggingEntry()) {
-      options.add("L", "Logging - Add test logging entry to log SQL when running tests (recommended)");
+      options.add("L", "Logging","Add test logging entry to log SQL when running tests (recommended)");
     }
     if (!detection.isDbMigration()) {
-      options.add("G", "Generate migrations - Add GenerateDbMigration for generating DB migration scripts (recommended)");
+      options.add("G", "Generate migrations","Add GenerateDbMigration for generating DB migration scripts (recommended)");
     }
 
-    options.add("F", "Finders - generate finders");
-    options.add("T", "Type safe query beans - manually generate them (rather than via APT/KAPT)");
-    options.add("Q", "Quit");
+    options.add("F", "Finders","Generate finders");
+    options.add("T", "Type safe query beans","Generate query beans (rather than via APT/KAPT)");
 
+    if (detection.isSourceModeKotlin()) {
+      options.add("J", "Java source mode",null);
+    } else {
+      options.add("K", "Kotlin source mode",null);
+    }
+
+    if (detection.isExtraOptions()) {
+      options.add("0", "Output debug",null);
+      options.add("1", "Turn debug On",null);
+      options.add("2", "Turn debug Off",null);
+
+      if (!fileWatcher.isRunning()) {
+        options.add("3", "Start background query bean generation","Experimental background generation of query beans");
+      } else {
+        options.add("4", "Stop background query bean generation",null);
+      }
+    } else {
+      options.add("E", "Experimental options","Show experimentation options for query bean generation");
+    }
+
+    options.add("Q", "Quit",null);
     return options;
   }
 
@@ -158,7 +194,7 @@ class Interaction {
   }
 
   private void executeAddTestLogging() {
-    help.acknowledge("  Refer to https://ebean-orm.github.io/docs/logging");
+    new DoAddTestResource(detection, help).addLogbackTest();
   }
 
   private void executeGenerateFinders() {
@@ -174,11 +210,15 @@ class Interaction {
   }
 
   private void executeAddTestProperties() {
-    new DoAddTestProperties(detection, help).run();
+    new DoAddTestResource(detection, help).addApplicationTestYml();
   }
 
   private void executeAddMainProperties() {
     new DoAddMainProperties(detection, help).run();
+  }
+
+  private void executeExtraOptions() {
+    detection.setExtraOptions(true);
   }
 
   private void executeDebug() {

@@ -1,4 +1,4 @@
-package io.ebean.tools.init.addprops;
+package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.InteractionHelp;
@@ -31,8 +31,8 @@ public class DoAddMainProperties {
       }
       File file = copyProperties(mainRes);
       if (file != null) {
-        help.acknowledge("  ... added " + file.getAbsolutePath());
-        detection.addedTestProperties();
+        help.ackDone("  ... added " + file.getAbsolutePath());
+        detection.addedMainProperties();
       }
     }
   }

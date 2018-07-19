@@ -1,4 +1,4 @@
-package io.ebean.tools.init.addmigration;
+package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.DetectionMeta;
@@ -26,10 +26,15 @@ public class DoAddGenerateMigration {
   public void run() {
 
     DetectionMeta meta = detection.getMeta();
-    File ktSrc = meta.getSourceTestKotlin();
-    if (ktSrc != null && ktSrc.exists()) {
-      addKotlinGeneration(main(ktSrc));
-      return;
+
+    if (detection.isSourceModeKotlin()) {
+      File ktSrc = meta.getSourceTestKotlin();
+      if (ktSrc != null && ktSrc.exists()) {
+        addKotlinGeneration(main(ktSrc));
+        return;
+      } else {
+        help.acknowledge("  WARNING - can not find src/test/kotlin ?");
+      }
     }
 
     File javaSrc = meta.getSourceTestJava();
@@ -53,7 +58,7 @@ public class DoAddGenerateMigration {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.java");
       FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
-      help.acknowledge("  ... added " + mig.getAbsolutePath());
+      help.ackDone("  ... added " + mig.getAbsolutePath());
       detection.addedGenerateMigration("GenerateDbMigration.java");
 
     } catch (IOException e) {
@@ -65,7 +70,7 @@ public class DoAddGenerateMigration {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.kt");
       FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
-      help.acknowledge("  ... added " + mig.getAbsolutePath());
+      help.ackDone("  ... added " + mig.getAbsolutePath());
       detection.addedGenerateMigration("GenerateDbMigration.kt");
 
     } catch (IOException e) {

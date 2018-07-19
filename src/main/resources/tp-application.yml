@@ -1,8 +1,4 @@
 
-## load external properties
-#load:
-#  properties: ${user.home}/config/my-application.properties
-
 datasource:
   db:
     username: sa

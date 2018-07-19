@@ -2,16 +2,14 @@ package io.ebean.tools.init.watch;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.InteractionHelp;
-import io.ebean.tools.init.addfinders.DoGenerate;
+import io.ebean.tools.init.action.DoGenerate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +26,10 @@ public class FileWatcher {
   private final Set<File> queue = new HashSet<>();
 
   private final Detection detection;
+
   private final InteractionHelp help;
+
+  private boolean running;
 
   public FileWatcher(Detection detection, InteractionHelp help) {
     this.detection = detection;
@@ -62,6 +63,10 @@ public class FileWatcher {
 
   private WatchDir watchDir;
 
+  public boolean isRunning() {
+    return running;
+  }
+
   /**
    * Register the watch service on the source directory and process any events.
    * <p>
@@ -69,6 +74,7 @@ public class FileWatcher {
    */
   public void start(Path sourceDirectory) {
     synchronized (queue) {
+      running = true;
       log.info("starting watcher ...");
       timer = new Timer();
       watchDir = new WatchDir(sourceDirectory, true, new Callback(), new Skip());
@@ -79,6 +85,7 @@ public class FileWatcher {
   public void stop() {
 
     synchronized (queue) {
+      running = false;
       if (timer != null) {
         timer.purge();
         timer.cancel();
