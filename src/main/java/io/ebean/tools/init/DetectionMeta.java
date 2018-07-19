@@ -1,92 +1,67 @@
 package io.ebean.tools.init;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 public class DetectionMeta {
 
-  private Set<String> testClasspath = new LinkedHashSet<>();
-  private Set<String> runtimeClasspath = new LinkedHashSet<>();
-
-  private List<String> mainResources = new ArrayList<>();
-  private List<String> testResources = new ArrayList<>();
+  private File mainResource;
+  private File testResource;
 
   private File sourceJava;
   private File sourceKotlin;
-  private List<String> mainSource;
 
   private File sourceTestJava;
   private File sourceTestKotlin;
-  private List<String> testSource;
 
-  private String mainOutput;
-  private String testOutput;
+  private File mainOutput;
+  private File testOutput;
 
-  public List<String> getMainSource() {
-    return mainSource;
-  }
-
-  public List<String> getTestSource() {
-    return testSource;
-  }
-
-  public void setTestSource(List<String> testSource, File sourceTestJava, File sourceTestKotlin) {
-    this.testSource = testSource;
-    this.sourceTestJava = sourceTestJava;
-    this.sourceTestKotlin = sourceTestKotlin;
-  }
-
-  public void setMainSource(List<String> mainSource, File sourceJava, File sourceKotlin) {
-    this.mainSource = mainSource;
+  public void setSourceJava(File sourceJava) {
     this.sourceJava = sourceJava;
+  }
+
+  public void setSourceKotlin(File sourceKotlin) {
     this.sourceKotlin = sourceKotlin;
   }
 
-  public void addResourceDirectory(String directory) {
-    mainResources.add(directory);
+  public void setSourceTestJava(File sourceTestJava) {
+    this.sourceTestJava = sourceTestJava;
   }
 
-  public void addTestResourceDirectory(String directory) {
-    testResources.add(directory);
+  public void setSourceTestKotlin(File sourceTestKotlin) {
+    this.sourceTestKotlin = sourceTestKotlin;
   }
 
-  public void addTestClassPath(List<String> classpathElements) {
-    testClasspath.addAll(classpathElements);
+  public File getMainResource() {
+    return mainResource;
   }
 
-  public void addRuntimeClassPath(List<String> classpathElements) {
-    runtimeClasspath.addAll(classpathElements);
+  public void setMainResource(File mainResource) {
+    this.mainResource = mainResource;
   }
 
-  public void setMainOutput(String mainOutput) {
+  public File getTestResource() {
+    return testResource;
+  }
+
+  public void setTestResource(File testResource) {
+    this.testResource = testResource;
+  }
+
+  public void setMainOutput(File mainOutput) {
     this.mainOutput = mainOutput;
   }
 
-  public String getMainOutput() {
+  public File getMainOutput() {
     return mainOutput;
   }
 
-  public void setTestOutput(String testOutput) {
+  public void setTestOutput(File testOutput) {
     this.testOutput = testOutput;
   }
 
-  public String getTestOutput() {
+  public File getTestOutput() {
     return testOutput;
-  }
-
-  public Set<String> getRuntimeClasspath() {
-    return runtimeClasspath;
-  }
-
-  public List<String> getTestResources() {
-    return testResources;
-  }
-
-  public List<String> getMainResources() {
-    return mainResources;
   }
 
   public File getSourceJava() {
@@ -113,5 +88,25 @@ public class DetectionMeta {
       return SourceMode.KOTLIN;
     }
     return SourceMode.JAVA;
+  }
+
+  public boolean createSrcMainResources() {
+    mainResource = new File("src/main/resources");
+    if (mainResource.mkdir()) {
+      return true;
+    }
+
+    mainResource = null;
+    return false;
+  }
+
+  public boolean createSrcTestResources() {
+    testResource = new File("src/test/resources");
+    if (testResource.mkdir()) {
+      return true;
+    }
+
+    testResource = null;
+    return false;
   }
 }

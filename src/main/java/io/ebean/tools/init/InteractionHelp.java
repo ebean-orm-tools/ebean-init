@@ -5,6 +5,7 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
 import java.io.Console;
+import java.io.File;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,30 @@ public class InteractionHelp {
 
   public boolean isContinue() {
     return actions.continueState();
+  }
+
+  public void checkResourceDirectories() {
+    DetectionMeta meta = detection.getMeta();
+
+    File mainResource = meta.getMainResource();
+    if (mainResource == null || !mainResource.exists()) {
+      String yesNo = askYesNo("  src/main/resource does not exist, can we create it?");
+      if (yesNo.equalsIgnoreCase("Yes")) {
+        if (!meta.createSrcMainResources()) {
+          acknowledge("  ... failed to create src/main/resource directory");
+        }
+      }
+    }
+
+    File testResource = meta.getTestResource();
+    if (testResource == null || !testResource.exists()) {
+      String yesNo = askYesNo("  src/test/resource does not exist, can we create it?");
+      if (yesNo.equalsIgnoreCase("Yes")) {
+        if (!meta.createSrcTestResources()) {
+          acknowledge("  ... failed to create src/test/resource directory");
+        }
+      }
+    }
   }
 
   public void questionTransactionalPackage() {

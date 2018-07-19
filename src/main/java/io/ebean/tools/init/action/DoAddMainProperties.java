@@ -6,7 +6,6 @@ import io.ebean.tools.init.util.FileCopy;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class DoAddMainProperties {
 
@@ -20,16 +19,12 @@ public class DoAddMainProperties {
   }
 
   public void run() {
-    List<String> mainResourceDirs = detection.getMeta().getMainResources();
-    if (mainResourceDirs.isEmpty()) {
-      help.acknowledge("  Unsuccessful - could not determine the resources directory");
+    File mainResource = detection.getMeta().getMainResource();
+    if (mainResource == null || !mainResource.exists()) {
+      help.acknowledge("  Unsuccessful - could not determine the main resources directory");
 
     } else {
-      File mainRes = new File(mainResourceDirs.get(0));
-      if (!mainRes.exists() && mainRes.isDirectory()) {
-        throw new IllegalStateException("Expected resource directory at " + mainRes.getAbsolutePath());
-      }
-      File file = copyProperties(mainRes);
+      File file = copyProperties(mainResource);
       if (file != null) {
         help.ackDone("  ... added " + file.getAbsolutePath());
         detection.addedMainProperties();

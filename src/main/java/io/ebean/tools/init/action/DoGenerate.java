@@ -66,8 +66,14 @@ public class DoGenerate {
 
     DetectionMeta meta = detection.getMeta();
 
+    File mainOutput = meta.getMainOutput();
+    if (mainOutput == null || !mainOutput.exists()) {
+      help.acknowledge("Failed - Can not determine main classes output directory?");
+      return null;
+    }
+
     GeneratorConfig config = new GeneratorConfig();
-    config.setClassesDirectory(meta.getMainOutput());
+    config.setClassesDirectory(mainOutput.getAbsolutePath());
 
     File source = meta.getSourceJava();
 

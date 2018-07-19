@@ -7,7 +7,6 @@ import io.ebean.tools.init.InteractionHelp;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
 
 public class DoAddManifest {
 
@@ -35,17 +34,13 @@ public class DoAddManifest {
 
   private void writeManifest() {
 
-    List<String> resourceDirs = detection.getMeta().getMainResources();
-    if (resourceDirs.isEmpty()) {
+    File resourceDir = detection.getMeta().getMainResource();
+    if (resourceDir == null || !resourceDir.exists()) {
       help.acknowledge("  Unsuccessful - could not determine the resources directory?");
 
     } else {
-      File res = new File(resourceDirs.get(0));
-      if (!res.exists() && res.isDirectory()) {
-        throw new IllegalStateException("Expected resource directory at " + res.getAbsolutePath());
-      }
       try {
-        File file = new File(res, "ebean.mf");
+        File file = new File(resourceDir, "ebean.mf");
         FileWriter writer = new FileWriter(file);
 
         Actions actions = help.actions();

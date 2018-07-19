@@ -174,15 +174,23 @@ public class Detection {
   }
 
   private void findGenerateDbMigration() {
-    for (String testSrc : meta.getTestSource()) {
-      File testMain = new File(testSrc, "main");
-      if (testMain.exists()) {
-        File[] files = testMain.listFiles();
-        if (files != null) {
-          for (File file : files) {
-            if (file.getName().contains("DbMigration")) {
-              dbMigrationFile = file.getName();
-            }
+    findGenerateDbMigration(meta.getSourceTestJava());
+    findGenerateDbMigration(meta.getSourceTestKotlin());
+  }
+
+  private void findGenerateDbMigration(File testSrc) {
+
+    if (testSrc == null || !testSrc.exists()) {
+      return;
+    }
+
+    File testMain = new File(testSrc, "main");
+    if (testMain.exists()) {
+      File[] files = testMain.listFiles();
+      if (files != null) {
+        for (File file : files) {
+          if (file.getName().contains("DbMigration")) {
+            dbMigrationFile = file.getName();
           }
         }
       }
@@ -207,7 +215,7 @@ public class Detection {
       }
     }
 
-    File sourceKotlin= meta.getSourceKotlin();
+    File sourceKotlin = meta.getSourceKotlin();
     if (sourceKotlin != null && sourceKotlin.exists()) {
       topKotlinPackageDir = findUntilSplit(sourceKotlin);
       if (topKotlinPackageDir != null) {
@@ -289,8 +297,9 @@ public class Detection {
   private File findTestResourceAny(String... names) {
 
     for (String name : names) {
-      for (String dir : meta.getTestResources()) {
-        File file = new File(dir, name);
+      File testResource = meta.getTestResource();
+      if (testResource != null) {
+        File file = new File(testResource, name);
         if (file.exists()) {
           return file;
         }
@@ -301,8 +310,9 @@ public class Detection {
 
   private File findTestResource(String name) {
 
-    for (String dir : meta.getTestResources()) {
-      File file = new File(dir, name);
+    File testResource = meta.getTestResource();
+    if (testResource != null) {
+      File file = new File(testResource, name);
       if (file.exists()) {
         return file;
       }
@@ -312,18 +322,20 @@ public class Detection {
 
   private void findEbeanManifest() throws IOException {
 
-    for (String resourceDir : meta.getMainResources()) {
-      if (!loadEbeanManifest(new File(resourceDir, "ebean.mf"))) {
-        loadEbeanManifest(new File(resourceDir, "META-INF/ebean.mf"));
+    File mainResource = meta.getMainResource();
+    if (mainResource != null && mainResource.exists()) {
+      if (!loadEbeanManifest(new File(mainResource, "ebean.mf"))) {
+        loadEbeanManifest(new File(mainResource, "META-INF/ebean.mf"));
       }
     }
   }
 
   private void findMainProperties() {
-    for (String resourceDir : meta.getMainResources()) {
-      if (new File(resourceDir, "application.yml").exists()
-        || new File(resourceDir, "application.properties").exists()
-        || new File(resourceDir, "ebean.properties").exists()) {
+    File mainResource = meta.getMainResource();
+    if (mainResource != null && mainResource.exists()) {
+      if (new File(mainResource, "application.yml").exists()
+        || new File(mainResource, "application.properties").exists()
+        || new File(mainResource, "ebean.properties").exists()) {
         mainProperties = true;
       }
     }

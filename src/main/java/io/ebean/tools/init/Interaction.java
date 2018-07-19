@@ -5,7 +5,6 @@ import io.ebean.tools.init.action.DoAddGenerateMigration;
 import io.ebean.tools.init.action.DoAddMainProperties;
 import io.ebean.tools.init.action.DoAddManifest;
 import io.ebean.tools.init.action.DoAddTestResource;
-import io.ebean.tools.init.action.DoDebug;
 import io.ebean.tools.init.action.DoGenerate;
 import io.ebean.tools.init.util.QuestionOptions;
 import io.ebean.tools.init.watch.FileWatcher;
@@ -33,6 +32,7 @@ class Interaction {
       help.outputHeading();
       help.outputAllGoodBits();
       help.outputSourceMode();
+      help.checkResourceDirectories();
 
       boolean quit = false;
       while (!quit) {
@@ -90,9 +90,6 @@ class Interaction {
       case "E":
         executeExtraOptions();
         break;
-      case "0":
-        executeDebug();
-        break;
       case "1":
         loggerDebugOn();
         break;
@@ -119,9 +116,8 @@ class Interaction {
   }
 
   private void startWatcher() {
-    String mainOut = detection.getMeta().getMainOutput();
-    File mainOutDir = new File(mainOut);
-    if (!mainOutDir.exists()) {
+    File mainOut = detection.getMeta().getMainOutput();
+    if (mainOut == null || !mainOut.exists()) {
       help.yell("main output dir does not exist? " + mainOut);
       return;
     }
@@ -129,7 +125,7 @@ class Interaction {
     String entityPackage = detection.getEntityPackage();
     String entityPath = entityPackage.replace('.', '/');
 
-    File fullPath = new File(mainOutDir, entityPath);
+    File fullPath = new File(mainOut, entityPath);
     if (!fullPath.exists()) {
       help.yell("entity bean output dir does not exist? " + fullPath.getAbsolutePath());
       return;
@@ -219,10 +215,6 @@ class Interaction {
 
   private void executeExtraOptions() {
     detection.setExtraOptions(true);
-  }
-
-  private void executeDebug() {
-    new DoDebug(detection, help).run();
   }
 
   private void loggerDebugOn() {

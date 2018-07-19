@@ -1,12 +1,11 @@
 package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
-import io.ebean.tools.init.util.FileCopy;
 import io.ebean.tools.init.InteractionHelp;
+import io.ebean.tools.init.util.FileCopy;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class DoAddTestResource {
 
@@ -32,16 +31,12 @@ public class DoAddTestResource {
   }
 
   private boolean add(String destination, String sourceResource) {
-    List<String> testResourceDirs = detection.getMeta().getTestResources();
-    if (testResourceDirs.isEmpty()) {
+    File testResource = detection.getMeta().getTestResource();
+    if (testResource == null || !testResource.exists()) {
       help.acknowledge("  Unsuccessful - could not determine the test resources directory, maybe it does not exist yet?");
 
     } else {
-      File testRes = new File(testResourceDirs.get(0));
-      if (!testRes.exists() && testRes.isDirectory()) {
-        throw new IllegalStateException("Expected test resource directory at " + testRes.getAbsolutePath());
-      }
-      File file = copyTestProperties(testRes, destination, sourceResource);
+      File file = copyTestProperties(testResource, destination, sourceResource);
       if (file != null) {
         help.ackDone("  ... added " + file.getAbsolutePath());
         return true;

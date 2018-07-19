@@ -1,24 +1,11 @@
 package io.ebean.tools.init;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProjectDetection {
 
   private boolean maven;
   private boolean gradle;
-
-  private List<String> sourceDirs = new ArrayList();
-  private List<String> sourceTestDirs = new ArrayList();
-
-  private File sourceJava;
-  private File sourceKotlin;
-
-  private File outputDir;
-
-  private File sourceTestJava;
-  private File sourceTestKotlin;
 
   public DetectionMeta run() {
 
@@ -31,73 +18,50 @@ public class ProjectDetection {
       gradle = true;
     }
 
-    sourceJava = addPath("src/main/java", sourceDirs);
-    sourceKotlin = addPath("src/main/kotlin", sourceDirs);
+    DetectionMeta meta = new DetectionMeta();
+    File sourceJava = new File("src/main/java");
+    if (sourceJava.exists()) {
+      meta.setSourceJava(sourceJava);
+    }
 
-    sourceTestJava = addPath("src/test/java", sourceTestDirs);
-    sourceTestKotlin = addPath("src/test/kotlin", sourceTestDirs);
+    File sourceKotlin = new File("src/main/kotlin");
+    if (sourceKotlin.exists()) {
+      meta.setSourceKotlin(sourceKotlin);
+    }
 
-    File mainResourcesDir = null;
-    File testResourcesDir = null;
+    File testJava = new File("src/test/java");
+    if (testJava.exists()) {
+      meta.setSourceTestJava(testJava);
+    }
+
+    File testKotlin = new File("src/test/kotlin");
+    if (testKotlin.exists()) {
+      meta.setSourceTestKotlin(testKotlin);
+    }
 
     File mainRes = new File("src/main/resources");
     if (mainRes.exists()) {
-      mainResourcesDir = mainRes;
+      meta.setMainResource(mainRes);
     }
 
     File testRes = new File("src/test/resources");
     if (testRes.exists()) {
-      testResourcesDir = testRes;
+      meta.setTestResource(testRes);
     }
 
     File targetClass = new File("target/classes");
     if (targetClass.exists()) {
-      outputDir = targetClass;
+      meta.setMainOutput(targetClass);
     }
 
     File outClass = new File("out/production/classes");
     if (outClass.exists()) {
-      outputDir = outClass;
+      meta.setMainOutput(outClass);
     }
 
-
-    DetectionMeta meta = new DetectionMeta();
-    meta.setMainSource(sourceDirs, sourceJava, sourceKotlin);
-    meta.setMainOutput(outputDir.getAbsolutePath());
-
-    meta.setTestSource(sourceTestDirs, sourceTestJava, sourceTestKotlin);
     meta.setTestOutput(meta.getMainOutput());
-
-    if (mainResourcesDir != null) {
-      meta.addResourceDirectory(mainResourcesDir.getAbsolutePath());
-    }
-
-    if (testResourcesDir != null) {
-      meta.addTestResourceDirectory(testResourcesDir.getAbsolutePath());
-    }
 
     return meta;
   }
 
-  private File addPath(String path, List<String> dirs) {
-    File dir = new File(path);
-    if (dir.exists()) {
-      dirs.add(dir.getAbsolutePath());
-      return dir;
-    }
-    return null;
-  }
-
-  private boolean add(String path, List<File> dirs) {
-    File dir = new File(path);
-    if (dir.exists()) {
-      dirs.add(dir);
-      return true;
-    }
-    return false;
-  }
-
-  private boolean fileExists(String path) {
-    return new File(path).exists();
-  }
 }
