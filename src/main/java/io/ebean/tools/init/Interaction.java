@@ -31,6 +31,10 @@ class Interaction {
     try {
       help.outputHeading();
       help.outputAllGoodBits();
+      if (help.unexpectedLocation()) {
+        return;
+      }
+
       help.outputSourceMode();
       help.checkResourceDirectories();
 

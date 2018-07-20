@@ -329,4 +329,15 @@ public class InteractionHelp {
   public Actions actions() {
     return actions;
   }
+
+  public boolean unexpectedLocation() {
+
+    if (detection.unexpectedLocation()) {
+      ackDone("The current directory does not appear to be a Java or Kotlin project");
+      ackDone("Please run me in a project directory - thanks !!");
+      return true;
+    }
+
+    return false;
+  }
 }

@@ -4,21 +4,19 @@ import java.io.File;
 
 public class ProjectDetection {
 
-  private boolean maven;
-  private boolean gradle;
-
   public DetectionMeta run() {
+
+    DetectionMeta meta = new DetectionMeta();
 
     File pom = new File("pom.xml");
     if (pom.exists()) {
-      maven = true;
+      meta.setMaven();
     }
     File gradleBuild = new File("build.gradle");
     if (gradleBuild.exists()) {
-      gradle = true;
+      meta.setGradle();
     }
 
-    DetectionMeta meta = new DetectionMeta();
     File sourceJava = new File("src/main/java");
     if (sourceJava.exists()) {
       meta.setSourceJava(sourceJava);

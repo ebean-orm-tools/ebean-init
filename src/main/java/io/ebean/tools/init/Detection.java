@@ -413,4 +413,7 @@ public class Detection {
     dbMigrationFile = name;
   }
 
+  public boolean unexpectedLocation() {
+    return meta.unexpectedLocation();
+  }
 }

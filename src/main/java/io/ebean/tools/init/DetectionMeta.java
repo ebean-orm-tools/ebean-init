@@ -4,6 +4,9 @@ import java.io.File;
 
 public class DetectionMeta {
 
+  private boolean gradle;
+  private boolean maven;
+
   private File mainResource;
   private File testResource;
 
@@ -108,5 +111,20 @@ public class DetectionMeta {
 
     testResource = null;
     return false;
+  }
+
+  /**
+   * Return true if we don't think we are in a project directory.
+   */
+  public boolean unexpectedLocation() {
+    return !maven && !gradle && sourceJava == null && sourceKotlin == null;
+  }
+
+  public void setMaven() {
+    maven = true;
+  }
+
+  public void setGradle() {
+    gradle = true;
   }
 }
