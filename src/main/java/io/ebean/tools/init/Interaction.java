@@ -9,10 +9,14 @@ import io.ebean.tools.init.action.DoGenerate;
 import io.ebean.tools.init.util.QuestionOptions;
 import io.ebean.tools.init.watch.FileWatcher;
 import org.fusesource.jansi.AnsiConsole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 class Interaction {
+
+  private static final Logger log = LoggerFactory.getLogger(Interaction.class);
 
   private final Detection detection;
 
@@ -20,6 +24,9 @@ class Interaction {
 
   private final FileWatcher fileWatcher;
 
+  private boolean debugOutput;
+
+  private boolean watching;
 
   Interaction(Detection detection) {
     this.detection = detection;
@@ -47,6 +54,7 @@ class Interaction {
         String answer = help.askKey("Select an command:", options);
         quit = isQuit(answer);
         if (quit) {
+          stopWatcher();
           help.acknowledge("  done.");
           help.acknowledge(" ");
           help.acknowledge(" ");
@@ -94,17 +102,11 @@ class Interaction {
       case "E":
         executeExtraOptions();
         break;
+      case "0":
+        loggerDebugToggle();
+        break;
       case "1":
-        loggerDebugOn();
-        break;
-      case "2":
-        loggerDebugOff();
-        break;
-      case "3":
-        startWatcher();
-        break;
-      case "4":
-        stopWatcher();
+        watcherToggle();
         break;
     }
   }
@@ -115,8 +117,22 @@ class Interaction {
   }
 
 
+  private void watcherToggle() {
+    if (watching) {
+      stopWatcher();
+    } else {
+      startWatcher();
+    }
+    watching = fileWatcher.isRunning();
+  }
+
   private void stopWatcher() {
-    fileWatcher.stop();
+    try {
+      fileWatcher.stop();
+    } catch (Exception e) {
+      help.yell("Error stopping watcher: " + e.getMessage());
+      log.error("Error stopping watcher", e);
+    }
   }
 
   private void startWatcher() {
@@ -172,15 +188,12 @@ class Interaction {
     }
 
     if (detection.isExtraOptions()) {
-      options.add("0", "Output debug",null);
-      options.add("1", "Turn debug On",null);
-      options.add("2", "Turn debug Off",null);
+      String debugDesc = debugOutput ? "Turn debug Off" : "Turn debug On";
+      options.add("0", debugDesc,null);
 
-      if (!fileWatcher.isRunning()) {
-        options.add("3", "Start background query bean generation","Experimental background generation of query beans");
-      } else {
-        options.add("4", "Stop background query bean generation",null);
-      }
+      String watchDesc = watching ? "Stop background query bean generation" : "Start background query bean generation";
+      options.add("1", watchDesc,null);
+
     } else {
       options.add("E", "Experimental options","Show experimentation options for query bean generation");
     }
@@ -221,16 +234,14 @@ class Interaction {
     detection.setExtraOptions(true);
   }
 
-  private void loggerDebugOn() {
-    help.acknowledge("... logging debug ON");
-    ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
-    root.setLevel(Level.DEBUG);
-  }
+  private void loggerDebugToggle() {
 
-  private void loggerDebugOff() {
-    help.acknowledge("... logging debug OFF");
+    debugOutput = !debugOutput;
+    String msg = debugOutput ? "... logging debug ON" : "... logging debug ON";
+    Level level = debugOutput ? Level.DEBUG : Level.WARN;
+    help.acknowledge(msg);
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
-    root.setLevel(Level.WARN);
+    root.setLevel(level);
   }
 
 }
