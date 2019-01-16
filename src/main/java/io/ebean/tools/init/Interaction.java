@@ -238,7 +238,7 @@ class Interaction {
 
     debugOutput = !debugOutput;
     String msg = debugOutput ? "... logging debug ON" : "... logging debug ON";
-    Level level = debugOutput ? Level.DEBUG : Level.WARN;
+    Level level = debugOutput ? Level.TRACE : Level.WARN;
     help.acknowledge(msg);
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
     root.setLevel(level);
