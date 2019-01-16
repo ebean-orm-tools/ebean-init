@@ -90,9 +90,6 @@ class Interaction {
       case "F":
         executeGenerateFinders();
         break;
-      case "T":
-        executeGenerateQueryBeans();
-        break;
       case "J":
         sourceMode(SourceMode.JAVA);
         break;
@@ -107,6 +104,9 @@ class Interaction {
         break;
       case "1":
         watcherToggle();
+        break;
+      case "2":
+        executeGenerateQueryBeans();
         break;
     }
   }
@@ -179,7 +179,6 @@ class Interaction {
     }
 
     options.add("F", "Finders","Generate finders");
-    options.add("T", "Type safe query beans","Generate query beans (rather than via APT/KAPT)");
 
     if (detection.isSourceModeKotlin()) {
       options.add("J", "Java source mode",null);
@@ -193,6 +192,8 @@ class Interaction {
 
       String watchDesc = watching ? "Stop background query bean generation" : "Start background query bean generation";
       options.add("1", watchDesc,null);
+
+      options.add("2", "Type safe query beans","Generate query beans (rather than via APT/KAPT)");
 
     } else {
       options.add("E", "Experimental options","Show experimentation options for query bean generation");
