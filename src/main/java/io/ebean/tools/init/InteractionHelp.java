@@ -305,7 +305,7 @@ public class InteractionHelp {
 
   void outputHeading() {
     AnsiConsole.out().println(Ansi.ansi().fgMagenta().a("-------------------------------------------------------------").reset());
-    AnsiConsole.out().print(Ansi.ansi().bold().fgYellow().a("EBEAN : INIT").reset());
+    AnsiConsole.out().print(Ansi.ansi().bold().fgYellow().a("ebeaninit").reset());
     AnsiConsole.out().println(Ansi.ansi().fgDefault().a("  - interactive ebean initialiser - " + "v" + Version.getVersion()).reset());
     AnsiConsole.out().println(Ansi.ansi().fgMagenta().a("-------------------------------------------------------------").reset());
   }
