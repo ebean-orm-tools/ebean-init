@@ -40,12 +40,24 @@ public class DoGenerate {
     }
   }
 
+  public void generateSingleFinder() {
+    String entityForFinder = help.questionFinder();
+    generateFinders(entityForFinder);
+  }
 
   public void generateFinders() {
+    generateFinders(null);
+  }
+
+  private void generateFinders(String filter) {
 
     GeneratorConfig config = createConfig();
     if (config == null) {
       return;
+    }
+
+    if (filter != null) {
+      config.setEntityNameFilter(filter);
     }
 
     Generator generator = new Generator(config);

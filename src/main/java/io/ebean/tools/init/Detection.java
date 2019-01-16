@@ -406,7 +406,7 @@ public class Detection {
   }
 
   /**
-   * Set that the test-ebean.properties has been set.
+   * Set that the test properties has been set.
    */
   public void addedTestProperties() {
     testProperties = true;

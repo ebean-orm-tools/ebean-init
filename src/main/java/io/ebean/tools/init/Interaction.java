@@ -90,6 +90,9 @@ class Interaction {
       case "F":
         executeGenerateFinders();
         break;
+      case "I":
+        executeGenerateSingleFinder();
+        break;
       case "J":
         sourceMode(SourceMode.JAVA);
         break;
@@ -179,11 +182,12 @@ class Interaction {
     }
 
     options.add("F", "Finders","Generate finders");
+    options.add("I", "Single Finder","Generate a single finder");
 
     if (detection.isSourceModeKotlin()) {
-      options.add("J", "Java source mode",null);
+      options.add("J", "Java source mode", "Change to generate java source");
     } else {
-      options.add("K", "Kotlin source mode",null);
+      options.add("K", "Kotlin source mode", "Change to generate kotlin source");
     }
 
     if (detection.isExtraOptions()) {
@@ -213,6 +217,10 @@ class Interaction {
 
   private void executeGenerateFinders() {
     new DoGenerate(detection, help).generateFinders();
+  }
+
+  private void executeGenerateSingleFinder() {
+    new DoGenerate(detection, help).generateSingleFinder();
   }
 
   private void executeGenerateQueryBeans() {

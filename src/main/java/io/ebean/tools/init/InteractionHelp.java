@@ -109,6 +109,10 @@ public class InteractionHelp {
     }
   }
 
+  public String questionFinder() {
+    return askSameLine("Enter an entity bean name (to generate the finder for): ");
+  }
+
   public void questionEntityBeanPackage() {
 
     List<String> list = detection.getDetectedPackages();
@@ -155,6 +159,11 @@ public class InteractionHelp {
       QuestionOptions.Option option = entry.getValue();
       outputKeyDesc(30, option.text, option.description);
     }
+  }
+
+  String askSameLine(String ask) {
+    out.print(Ansi.ansi().bold().fgBlue().a(ask).reset());
+    return actions.readLine();
   }
 
   String ask(String ask) {
