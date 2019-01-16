@@ -257,7 +257,7 @@ public class Detection {
   }
 
   private void findTestProperties() {
-    testProperties = (findTestResourceAny("application-test.yml", "application-test.properties", "test-ebean.properties") != null);
+    testProperties = (findTestResourceAny("application-test.yaml", "application-test.yml", "application-test.properties", "test-ebean.properties") != null);
   }
 
 
@@ -336,12 +336,17 @@ public class Detection {
   private void findMainProperties() {
     File mainResource = meta.getMainResource();
     if (mainResource != null && mainResource.exists()) {
-      if (new File(mainResource, "application.yml").exists()
-        || new File(mainResource, "application.properties").exists()
-        || new File(mainResource, "ebean.properties").exists()) {
+      if (exists(mainResource, "application.yaml")
+        || exists(mainResource, "application.yml")
+        || exists(mainResource, "application.properties")
+        || exists(mainResource, "ebean.properties")) {
         mainProperties = true;
       }
     }
+  }
+
+  private boolean exists(File dir, String file) {
+    return new File(dir, file).exists();
   }
 
   private boolean loadEbeanManifest(File file) throws IOException {

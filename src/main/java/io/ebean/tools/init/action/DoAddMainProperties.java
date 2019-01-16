@@ -39,16 +39,17 @@ public class DoAddMainProperties {
 
     } else {
       try {
-        File props = new File(mainRes, "application.yml");
-        if (props.exists()) {
-          throw new RuntimeException(props.getAbsolutePath() + " already exists? leaving as is.");
+        File propsYml = new File(mainRes, "application.yml");
+        File propsYaml = new File(mainRes, "application.yaml");
+        if (propsYml.exists() || propsYaml.exists()) {
+          throw new RuntimeException("application.yaml already exists? leaving as is.");
 
         } else {
-          FileCopy.copy(props, "/tp-application.yml");
-          return props;
+          FileCopy.copy(propsYaml, "/tp-application.yaml");
+          return propsYaml;
         }
       } catch (IOException e) {
-        throw new RuntimeException("Failed to copy application.yml", e);
+        throw new RuntimeException("Failed to copy application.yaml", e);
       }
     }
   }

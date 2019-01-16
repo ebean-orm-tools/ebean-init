@@ -309,7 +309,7 @@ public class InteractionHelp {
       //outputManifest();
     }
     if (detection.isTestPropertiesFound()) {
-      outputAllGood("test properties/yml", "configuration when running tests");
+      outputAllGood("test properties/yaml", "configuration when running tests");
     }
     if (detection.isTestLoggingEntry()) {
       outputAllGood(detection.getLoggerType(), "entry for logging SQL when running tests");

@@ -19,7 +19,7 @@ public class DoAddTestResource {
   }
 
   public void addApplicationTestYml() {
-    if (add("application-test.yml", "/tp-application-test.yml")) {
+    if (add("application-test.yaml", "/tp-application-test.yaml")) {
       detection.addedTestProperties();
     }
   }

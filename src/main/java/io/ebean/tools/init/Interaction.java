@@ -166,10 +166,10 @@ class Interaction {
       options.add("M", "Manifest","add ebean.mf to control enhancement (recommended)");
     }
     if (!detection.isMainProperties()) {
-      options.add("A", "Application properties","Add application.yml to configure Ebean");
+      options.add("A", "Application properties","Add application.yaml to configure Ebean");
     }
     if (!detection.isTestPropertiesFound()) {
-      options.add("P", "Test properties","Add application-test.yml to configure Ebean when running tests (recommended)");
+      options.add("P", "Test properties","Add application-test.yaml to configure Ebean when running tests (recommended)");
     }
     if (!detection.isTestLoggingEntry()) {
       options.add("L", "Logging","Add test logging entry to log SQL when running tests (recommended)");
