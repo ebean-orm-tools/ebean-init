@@ -50,11 +50,11 @@ public class ProjectDetection {
     File targetClass = new File("target/classes");
     if (targetClass.exists()) {
       meta.setMainOutput(targetClass);
-    }
-
-    File outClass = new File("out/production/classes");
-    if (outClass.exists()) {
-      meta.setMainOutput(outClass);
+    } else {
+      File outClass = new File("out/production/classes");
+      if (outClass.exists()) {
+        meta.setMainOutput(outClass);
+      }
     }
 
     meta.setTestOutput(meta.getMainOutput());

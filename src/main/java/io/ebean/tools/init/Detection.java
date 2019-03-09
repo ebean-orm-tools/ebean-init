@@ -127,11 +127,11 @@ public class Detection {
   }
 
   public String getTopPackage() {
+    if (isSourceModeKotlin() && topKotlinPackageDir != null) {
+      return diff(meta.getSourceKotlin(), topKotlinPackageDir);
+    }
     if (topJavaPackageDir != null) {
       return diff(meta.getSourceJava(), topJavaPackageDir);
-    }
-    if (topKotlinPackageDir != null) {
-      return diff(meta.getSourceKotlin(), topKotlinPackageDir);
     }
     return null;
   }
