@@ -1,5 +1,6 @@
 package io.ebean.tools.init;
 
+import io.ebean.tools.init.action.DoLocalDevelopment;
 import io.ebean.tools.init.util.QuestionOptions;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -29,6 +30,20 @@ public class InteractionHelp {
 
   public boolean isContinue() {
     return actions.continueState();
+  }
+
+  public void localDevelopment() {
+
+    out.println();
+    out.print(Ansi.ansi().fgGreen().a("  For local development we want to "));
+    out.println(Ansi.ansi().bold().fgGreen().a("ignore docker shutdown").boldOff().a(" for test containers"));
+    out.println(Ansi.ansi().boldOff().fgGreen().a("  This makes running tests locally faster and is recommended").reset());
+    out.println();
+
+    String yesNo = askYesNo("  create marker file ~/.ebean/ignore-docker-shutdown ?");
+    if (yesNo.equalsIgnoreCase("Yes")) {
+      new DoLocalDevelopment().run(this);
+    }
   }
 
   public void checkResourceDirectories() {

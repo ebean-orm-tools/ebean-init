@@ -6,6 +6,7 @@ import io.ebean.tools.init.action.DoAddMainProperties;
 import io.ebean.tools.init.action.DoAddManifest;
 import io.ebean.tools.init.action.DoAddTestResource;
 import io.ebean.tools.init.action.DoGenerate;
+import io.ebean.tools.init.action.DoLocalDevelopment;
 import io.ebean.tools.init.util.QuestionOptions;
 import io.ebean.tools.init.watch.FileWatcher;
 import org.fusesource.jansi.AnsiConsole;
@@ -40,6 +41,10 @@ class Interaction {
       help.outputAllGoodBits();
       if (help.unexpectedLocation()) {
         return;
+      }
+
+      if (!DoLocalDevelopment.exists()) {
+        help.localDevelopment();
       }
 
       help.outputSourceMode();
