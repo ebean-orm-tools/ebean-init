@@ -64,8 +64,8 @@ public class DoAddGenerateMigration {
 
   private File main(File src) {
     File testMain = new File(src, "main");
-    if (!testMain.mkdirs()) {
-      log.error("Error creating src/test directory");
+    if (!testMain.exists() && !testMain.mkdirs()) {
+      log.error("Error creating src/test/main directory");
     }
     return testMain;
   }

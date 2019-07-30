@@ -34,7 +34,8 @@ public class DoAddSampleEntity {
 
   private void addEntitySample() {
 
-    final File dir = makePackageDir();
+    final File mainDir = makeMainPackageDir();
+    final File testDir = makeTestPackageDir();
     try {
       String suffix = suffix();
       final HttpGet.Response baseModel = HttpGet.get("BaseModel" + suffix);
@@ -42,9 +43,9 @@ public class DoAddSampleEntity {
       final HttpGet.Response customerTest = HttpGet.get("CustomerTest" + suffix);
 
       if (baseModel.ok() && customer.ok() && customerTest.ok()) {
-        writeSampleCode("BaseModel", baseModel, dir);
-        writeSampleCode("Customer", customer, dir);
-        writeSampleCode("CustomerTest", customerTest, dir);
+        writeSampleCode("BaseModel", baseModel, mainDir);
+        writeSampleCode("Customer", customer, mainDir);
+        writeSampleCode("CustomerTest", customerTest, testDir);
         help.ackDone("...added sample code - BaseModel" + suffix + ", Customer" + suffix + " and CustomerTest" + suffix);
 
       } else {
@@ -70,13 +71,23 @@ public class DoAddSampleEntity {
     return java ? ".java" : ".kt";
   }
 
-  private File baseSourceDir() {
+  private File baseSourceMainDir() {
     return java ? meta.getSourceJava() : meta.getSourceKotlin();
   }
 
-  private File makePackageDir() {
+  private File baseSourceTestDir() {
+    return java ? meta.getSourceTestJava() : meta.getSourceTestKotlin();
+  }
 
-    final File baseDir = baseSourceDir();
+  private File makeMainPackageDir() {
+    return makePackageDir(baseSourceMainDir());
+  }
+
+  private File makeTestPackageDir() {
+    return makePackageDir(baseSourceTestDir());
+  }
+
+  private File makePackageDir(File baseDir) {
 
     final String dir = entityPackage.replace(".", File.separator);
 
