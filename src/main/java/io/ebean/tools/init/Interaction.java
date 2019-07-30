@@ -43,6 +43,10 @@ class Interaction {
         return;
       }
 
+      if (detection.isNewProject() && help.setupProject()) {
+        return;
+      }
+
       if (!DoLocalDevelopment.exists()) {
         help.localDevelopment();
       }
@@ -53,16 +57,16 @@ class Interaction {
       boolean quit = false;
       while (!quit) {
         QuestionOptions options = createOptions();
-        help.newCommand();
+        help.newLine();
         help.question("Commands:");
         help.outOps(options);
         String answer = help.askKey("Select an command:", options);
         quit = isQuit(answer);
         if (quit) {
           stopWatcher();
-          help.acknowledge("  done.");
-          help.acknowledge(" ");
-          help.acknowledge(" ");
+          help.ackErr("done.");
+          help.ackErr("");
+          help.ackErr("");
         } else {
           executeCommand(answer);
         }
@@ -213,11 +217,11 @@ class Interaction {
   }
 
   private void executeAddDbMigration() {
-    new DoAddGenerateMigration(detection, help).run();
+    new DoAddGenerateMigration(help).run();
   }
 
   private void executeAddTestLogging() {
-    new DoAddTestResource(detection, help).addLogbackTest();
+    new DoAddTestResource(help).addLogbackTest();
   }
 
   private void executeGenerateFinders() {
@@ -233,11 +237,11 @@ class Interaction {
   }
 
   private void executeManifest() {
-    new DoAddManifest(detection, help).run();
+    new DoAddManifest(help).run();
   }
 
   private void executeAddTestProperties() {
-    new DoAddTestResource(detection, help).addApplicationTestYml();
+    new DoAddTestResource(help).addApplicationTestYml();
   }
 
   private void executeAddMainProperties() {
@@ -253,7 +257,7 @@ class Interaction {
     debugOutput = !debugOutput;
     String msg = debugOutput ? "... logging debug ON" : "... logging debug ON";
     Level level = debugOutput ? Level.TRACE : Level.WARN;
-    help.acknowledge(msg);
+    help.ackErr(msg);
     ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io");
     root.setLevel(level);
   }

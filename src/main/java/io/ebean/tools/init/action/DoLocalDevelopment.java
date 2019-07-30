@@ -15,7 +15,7 @@ public class DoLocalDevelopment {
       }
       try {
         if (ignoreFile.createNewFile()) {
-          help.ackDone("  ... added " + ignoreFile.getAbsolutePath());
+          help.ackDone("... added " + ignoreFile.getAbsolutePath());
         }
       } catch (Exception e) {
         System.err.println("Failed to create file " + ignoreFile.getAbsolutePath());

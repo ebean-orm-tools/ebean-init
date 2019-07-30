@@ -13,9 +13,9 @@ public class DoAddManifest {
   private final Detection detection;
   private final InteractionHelp help;
 
-  public DoAddManifest(Detection detection, InteractionHelp help) {
-    this.detection = detection;
+  public DoAddManifest(InteractionHelp help) {
     this.help = help;
+    this.detection = help.detection();
   }
 
   public void run() {
@@ -36,7 +36,7 @@ public class DoAddManifest {
 
     File resourceDir = detection.getMeta().getMainResource();
     if (resourceDir == null || !resourceDir.exists()) {
-      help.acknowledge("  Unsuccessful - could not determine the resources directory?");
+      help.ackErr("Unsuccessful - could not determine the resources directory?");
 
     } else {
       try {
@@ -48,19 +48,30 @@ public class DoAddManifest {
         String transPkg = actions.getManifestTransactionalPackage();
         String queryPkg = actions.getManifestQueryBeanPackage();
 
-        writer.append("entity-packages: ").append(entityPkg).append("\n");
-        writer.append("transactional-packages: ").append(transPkg).append("\n");
-        writer.append("querybean-packages: ").append(queryPkg).append("\n");
+        if (hasValue(entityPkg)) {
+          writer.append("entity-packages: ").append(entityPkg).append("\n");
+        }
+        if (hasValue(transPkg)) {
+          writer.append("transactional-packages: ").append(transPkg).append("\n");
+        }
+        if (hasValue(queryPkg)) {
+          writer.append("querybean-packages: ").append(queryPkg).append("\n");
+        }
+        writer.append("profile-location: true").append("\n");
         writer.append("\n");
         writer.flush();
         writer.close();
 
-        help.ackDone("  ... added " + file.getAbsolutePath());
+        help.ackDone("... added ebean.mf");
         detection.addedEbeanManifest();
 
       } catch (IOException e) {
         throw new RuntimeException("Failed to write ebean.mf", e);
       }
     }
+  }
+
+  private boolean hasValue(String queryPkg) {
+    return queryPkg != null && !queryPkg.trim().isEmpty();
   }
 }

@@ -35,7 +35,7 @@ public class DoGenerate {
       generator.generateQueryBeans();
 
     } catch (IOException e) {
-      help.acknowledge("Error " + e);
+      help.ackErr("Error " + e);
       e.printStackTrace();
     }
   }
@@ -63,13 +63,13 @@ public class DoGenerate {
     Generator generator = new Generator(config);
     try {
       generator.generateFinders();
-      help.ackDone("  ... generated finders: " + generator.getFinders());
+      help.ackDone("... generated finders: " + generator.getFinders());
 
       generator.modifyEntityBeansAddFinderField();
-      help.ackDone("   ... linked finders: " + generator.getFinderLinks());
+      help.ackDone("... linked finders: " + generator.getFinderLinks());
 
     } catch (IOException e) {
-      help.acknowledge("Error " + e);
+      help.ackErr("Error " + e);
       e.printStackTrace();
     }
   }
@@ -80,7 +80,7 @@ public class DoGenerate {
 
     File mainOutput = meta.getMainOutput();
     if (mainOutput == null || !mainOutput.exists()) {
-      help.acknowledge("Failed - Can not determine main classes output directory?");
+      help.ackErr("Failed - Can not determine main classes output directory?");
       return null;
     }
 
@@ -94,7 +94,7 @@ public class DoGenerate {
       config.setLang("kt");
       source = meta.getSourceKotlin();
       if (detection.kotlinDomainDirs().isEmpty()) {
-        help.acknowledge("Failed - Can not determine kotlin domain package?");
+        help.ackErr("Failed - Can not determine kotlin domain package?");
         return null;
       }
     }
@@ -104,7 +104,7 @@ public class DoGenerate {
 
     config.setDestDirectory(source.getAbsolutePath());
 
-    help.ackDone("  settings used - kotlin:" + asKotlin + " package:" + entityPackage);
+    help.ackDone("settings used - kotlin:" + asKotlin + " package:" + entityPackage);
 
     config.setEntityBeanPackage(entityPackage);
     if (touchedClasses != null) {

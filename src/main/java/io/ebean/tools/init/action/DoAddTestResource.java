@@ -2,6 +2,8 @@ package io.ebean.tools.init.action;
 
 import io.ebean.tools.init.Detection;
 import io.ebean.tools.init.InteractionHelp;
+import io.ebean.tools.init.LoggingFile;
+import io.ebean.tools.init.LoggingFileWriter;
 import io.ebean.tools.init.util.FileCopy;
 
 import java.io.File;
@@ -13,9 +15,9 @@ public class DoAddTestResource {
 
   private final InteractionHelp help;
 
-  public DoAddTestResource(Detection detection, InteractionHelp help) {
-    this.detection = detection;
+  public DoAddTestResource(InteractionHelp help) {
     this.help = help;
+    this.detection = help.detection();
   }
 
   public void addApplicationTestYml() {
@@ -25,24 +27,48 @@ public class DoAddTestResource {
   }
 
   public void addLogbackTest() {
-    if (add("logback-test.xml", "/tp-logback-test.xml")) {
-      detection.addedTestLogging();
+    try {
+      final LoggingFile loggingFile = detection.getTestLoggingFile();
+      if (loggingFile != null) {
+        new LoggingFileWriter(loggingFile).writeToFile();
+      } else {
+        if (add("logback-test.xml", "/tp-logback-test.xml")) {
+          detection.addedTestLogging();
+        }
+      }
+    } catch (IOException e) {
+      help.ackErr("... failed to update logging test file. Error: " + e.getMessage());
+      e.printStackTrace();
     }
   }
 
   private boolean add(String destination, String sourceResource) {
     File testResource = detection.getMeta().getTestResource();
-    if (testResource == null || !testResource.exists()) {
-      help.acknowledge("  Unsuccessful - could not determine the test resources directory, maybe it does not exist yet?");
-
-    } else {
-      File file = copyTestProperties(testResource, destination, sourceResource);
-      if (file != null) {
-        help.ackDone("  ... added " + file.getAbsolutePath());
-        return true;
+    if (doesNotExist(testResource)) {
+      String yesNo = help.askYesNo("src/test/resources does not exist, can we create it?");
+      if (yesNo.equalsIgnoreCase("Yes")) {
+        if (!detection.getMeta().createSrcTestResources()) {
+          help.ackErr("... failed to create src/test/java directory");
+        }
       }
+      testResource = detection.getMeta().getTestResource();
     }
+
+    if (doesNotExist(testResource)) {
+      help.ackErr("Unsuccessful - could not determine the test resources directory, maybe it does not exist yet?");
+      return false;
+    }
+    File file = copyTestProperties(testResource, destination, sourceResource);
+    if (file != null) {
+      help.ackDone("... added " + destination);
+      return true;
+    }
+
     return false;
+  }
+
+  private boolean doesNotExist(File testResource) {
+    return testResource == null || !testResource.exists();
   }
 
   private File copyTestProperties(File testResourceDir, String destination, String sourceResource) {

@@ -9,23 +9,15 @@ public class QuestionOptions {
 
   private Map<String,Option> opts = new LinkedHashMap<>();
 
-  private int keyStart;
-
   public void add(String key, String text, String description) {
 
     Option option = new Option(key, text, description);
     opts.put(option.key, option);
-
-    try {
-      keyStart = Math.max(keyStart, Integer.parseInt(key));
-    } catch (NumberFormatException e) {
-      // ignore
-    }
   }
 
   public void addAll(List<String> list) {
-    for (int i = keyStart; i < list.size(); i++) {
-      add(""+(i + 1), list.get(i), null);
+    for (int i = 0; i < list.size(); i++) {
+      add(Integer.toString(i), list.get(i), null);
     }
   }
 

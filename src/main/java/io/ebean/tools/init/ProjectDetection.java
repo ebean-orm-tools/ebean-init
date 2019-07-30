@@ -10,11 +10,11 @@ public class ProjectDetection {
 
     File pom = new File("pom.xml");
     if (pom.exists()) {
-      meta.setMaven();
+      meta.setMaven(new MavenPom(pom));
     }
     File gradleBuild = new File("build.gradle");
     if (gradleBuild.exists()) {
-      meta.setGradle();
+      meta.setGradle(new GradleBuild(gradleBuild));
     }
 
     File sourceJava = new File("src/main/java");

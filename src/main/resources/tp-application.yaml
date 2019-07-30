@@ -7,9 +7,9 @@ datasource:
     driver: org.h2.Driver
 
 #  db:
-#    username: myapp
-#    password: ${db.password:fred}
-#    url: jdbc:postgresql://localhost:6432/myapp
+#    username: my_app
+#    password: ${db.password:test}
+#    url: jdbc:postgresql://localhost:6432/my_app
 #    driver: org.postgresql.Driver
 
 #ebean:

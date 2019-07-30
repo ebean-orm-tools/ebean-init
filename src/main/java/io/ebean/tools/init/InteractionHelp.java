@@ -1,6 +1,7 @@
 package io.ebean.tools.init;
 
 import io.ebean.tools.init.action.DoLocalDevelopment;
+import io.ebean.tools.init.action.DoProjectSetup;
 import io.ebean.tools.init.util.QuestionOptions;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 public class InteractionHelp {
 
+  private static final String INDENT = "  ";
   private final Detection detection;
 
   private final Actions actions;
@@ -32,15 +34,33 @@ public class InteractionHelp {
     return actions.continueState();
   }
 
+  public void lines(String... lines) {
+    out.println();
+    for (String line : lines) {
+      out.println(Ansi.ansi().fgGreen().a("  "+line));
+    }
+  }
+
+  public boolean setupProject() {
+
+    question("It looks like Ebean is not configured for this project.");
+    String yesNo = askYesNo("Do you want to run project setup to add dependencies and configuration ?");
+    if (yesNo.equalsIgnoreCase("Yes")) {
+      new DoProjectSetup(this).run();
+      return true;
+    }
+    return false;
+  }
+
   public void localDevelopment() {
 
     out.println();
-    out.print(Ansi.ansi().fgGreen().a("  For local development we want to "));
+    out.print(Ansi.ansi().fgGreen().a(INDENT + "For local development we want to "));
     out.println(Ansi.ansi().bold().fgGreen().a("ignore docker shutdown").boldOff().a(" for test containers"));
-    out.println(Ansi.ansi().boldOff().fgGreen().a("  This makes running tests locally faster and is recommended").reset());
+    out.println(Ansi.ansi().boldOff().fgGreen().a(INDENT + "This makes running tests locally faster and is recommended").reset());
     out.println();
 
-    String yesNo = askYesNo("  create marker file ~/.ebean/ignore-docker-shutdown ?");
+    String yesNo = askYesNo("create marker file ~/.ebean/ignore-docker-shutdown ?");
     if (yesNo.equalsIgnoreCase("Yes")) {
       new DoLocalDevelopment().run(this);
     }
@@ -51,20 +71,20 @@ public class InteractionHelp {
 
     File mainResource = meta.getMainResource();
     if (mainResource == null || !mainResource.exists()) {
-      String yesNo = askYesNo("  src/main/resource does not exist, can we create it?");
+      String yesNo = askYesNo("src/main/resource does not exist, can we create it?");
       if (yesNo.equalsIgnoreCase("Yes")) {
         if (!meta.createSrcMainResources()) {
-          acknowledge("  ... failed to create src/main/resource directory");
+          ackErr("... failed to create src/main/resource directory");
         }
       }
     }
 
     File testResource = meta.getTestResource();
     if (testResource == null || !testResource.exists()) {
-      String yesNo = askYesNo("  src/test/resource does not exist, can we create it?");
+      String yesNo = askYesNo("src/test/resources does not exist, can we create it?");
       if (yesNo.equalsIgnoreCase("Yes")) {
         if (!meta.createSrcTestResources()) {
-          acknowledge("  ... failed to create src/test/resource directory");
+          ackErr("... failed to create src/test/resources directory");
         }
       }
     }
@@ -74,7 +94,7 @@ public class InteractionHelp {
 
     String topPackage = detection.getTopPackage();
     String entityPackage = detection.getEntityPackage();
-    if (topPackage != null && entityPackage != null && topPackage.equals(entityPackage)) {
+    if (topPackage != null && topPackage.equals(entityPackage)) {
       int pos = topPackage.lastIndexOf('.');
       if (pos > 0) {
         topPackage = topPackage.substring(0, pos);
@@ -86,7 +106,7 @@ public class InteractionHelp {
       options.add("0", topPackage, null);
     }
     options.add("1", "Other", null);
-    options.add("2", "None","I don't want to use @Transactional");
+    options.add("2", "None, I don't want to use @Transactional", null);
 
     question("Select the top level package @Transactional is used");
     outOps(options);
@@ -106,20 +126,12 @@ public class InteractionHelp {
 
   public void questionQueryBeanPackage() {
 
-    actions.setManifestQueryBeanPackage("none");
-
-    String yesNo = askYesNo("  Do you plan to use Query Beans");
-    if (!yesNo.equalsIgnoreCase("Yes")) {
-      return;
-    }
-    if (isContinue()) {
-      detection.setUsingQueryBeans();
-      if (detection.isSourceModeKotlin()) {
-        ackDone("  ... for kotlin query beans using the entity package of " + actions.getManifestEntityPackage());
-        actions.setManifestQueryBeanPackage(actions.getManifestEntityPackage());
-      } else {
-        ackDone("  ... for java query beans using the top level package of " + actions.getManifestTransactionalPackage());
-        actions.setManifestQueryBeanPackage(actions.getManifestTransactionalPackage());
+    if (detection.isSourceModeKotlin()) {
+      actions.setManifestQueryBeanPackage(actions.getManifestEntityPackage());
+    } else {
+      String txnPackage = actions.getManifestTransactionalPackage();
+      if (!txnPackage.equals("none")) {
+        actions.setManifestQueryBeanPackage(txnPackage);
       }
     }
   }
@@ -135,8 +147,8 @@ public class InteractionHelp {
       q_enterEntityPackage();
 
     } else {
+      list.add("Other");
       QuestionOptions options = new QuestionOptions();
-      options.add("0", "Other", null);
       options.addAll(list);
 
       question("Select a package that will contain the entity beans");
@@ -150,26 +162,26 @@ public class InteractionHelp {
   }
 
   private void q_enterEntityPackage() {
-    String answer = ask("Enter a package that will contain the entity beans: ");
+    String answer = ask("Enter a package that will contain the entity beans");
     actions.setManifestEntityPackage(answer);
   }
 
   private void q_enterTransactionalPackage() {
-    String answer = ask("Enter the top level package that will contain @Transactional classes : ");
+    String answer = ask("Enter the top level package that will contain @Transactional classes");
     actions.setManifestTransactionalPackage(answer);
   }
 
-  QuestionOptions.Option outOptions(QuestionOptions options) {
+  public QuestionOptions.Option outOptions(QuestionOptions options) {
 
     outOps(options);
-    String answer = ask("select one of the options above");
+    String answer = askKey("Select an option:", options);
     return options.selected(answer);
   }
 
-  void outOps(QuestionOptions options) {
+  public void outOps(QuestionOptions options) {
     for (Map.Entry<String, QuestionOptions.Option> entry : options.entries()) {
       PrintStream out = AnsiConsole.out();
-      out.print(Ansi.ansi().bold().fgBrightDefault().a("  " + entry.getKey()).reset());
+      out.print(Ansi.ansi().bold().fgBrightDefault().a(INDENT + entry.getKey().toLowerCase()).reset());
 
       QuestionOptions.Option option = entry.getValue();
       outputKeyDesc(30, option.text, option.description);
@@ -181,22 +193,22 @@ public class InteractionHelp {
     return actions.readLine();
   }
 
-  String ask(String ask) {
-    out.println(Ansi.ansi().bold().fgBlue().a(ask).reset());
+  public String ask(String ask) {
+    out.print(Ansi.ansi().bold().fgBlue().a(INDENT + ask).reset().a(" > "));
     return actions.readLine();
   }
 
-  String askKey(String ask, QuestionOptions options) {
+  public String askKey(String ask, QuestionOptions options) {
     return ask(ask, options, true);
   }
 
-  String ask(String ask, QuestionOptions options) {
+  public String ask(String ask, QuestionOptions options) {
     return ask(ask, options, false);
   }
 
-  String ask(String ask, QuestionOptions options, boolean keyMode) {
+  public String ask(String ask, QuestionOptions options, boolean keyMode) {
 
-    out.print(Ansi.ansi().bold().fgBlue().a("  " + ask).reset());
+    out.print(Ansi.ansi().bold().fgBlue().a(INDENT + ask).reset());
 
     if (options != null) {
       outOptionKeys(options);
@@ -231,18 +243,13 @@ public class InteractionHelp {
       if (i++ != 0) {
         plain("/");
       }
-      optionKey(key);
+      optionKey(key.toLowerCase());
     }
     plain("]");
   }
 
-  public void newCommand() {
-    AnsiConsole.out().println();
-  }
-
-  void question(String content) {
-    PrintStream out = AnsiConsole.out();
-    out.println(Ansi.ansi().bold().fgBlue().a(content).reset());
+  public void question(String content) {
+    AnsiConsole.out().println(Ansi.ansi().bold().fgBlue().a(INDENT + content).reset());
   }
 
   void outputSourceMode() {
@@ -250,7 +257,7 @@ public class InteractionHelp {
     String desc = detection.isSourceModeKotlin() ? "Kotlin source mode" : "Java source mode";
 
     out.println();
-    out.println(Ansi.ansi().bold().fgGreen().a("  " + desc).reset());
+    out.println(Ansi.ansi().bold().fgGreen().a(INDENT + desc).reset());
   }
 
   void outputAllGood(String key, String description) {
@@ -261,21 +268,12 @@ public class InteractionHelp {
 
   void outputKeyDesc(int padTo, String key, String description ) {
 
-    out.print(Ansi.ansi().bold().a(" - ").reset());
-    out.print(Ansi.ansi().bold().fgBlue().a(key).reset());
+    out.print(Ansi.ansi().a(" - "+key).reset());
     if (description != null && description.trim().length() > 0) {
       int gap = padTo - key.length();
       out.print(Ansi.ansi().a(padding(gap) + "  - " + description).reset());
     }
     out.println();
-  }
-
-  public void outputDebug(String key, String description) {
-
-    int gap = 25 - key.length();
-
-    out.print(Ansi.ansi().bold().fgBlue().a(key).reset());
-    out.println(Ansi.ansi().a(padding(gap) + "  - " + description).reset());
   }
 
   private String padding(int gap) {
@@ -305,17 +303,12 @@ public class InteractionHelp {
     out.print(Ansi.ansi().bold().fgBrightDefault().a(content).reset());
   }
 
-  public void acknowledge(String content) {
-    out.println(Ansi.ansi().fgRed().a(content).reset());
+  public void ackErr(String content) {
+    out.println(Ansi.ansi().fgRed().a(INDENT + content).reset());
   }
 
   public void ackDone(String content) {
-    out.println(Ansi.ansi().fgDefault().a(content).reset());
-  }
-
-
-  void padOut(int len) {
-    plain(padding(len));
+    out.println(Ansi.ansi().fgDefault().a(INDENT + content).reset());
   }
 
   void outputHeading() {
@@ -324,7 +317,6 @@ public class InteractionHelp {
     AnsiConsole.out().println(Ansi.ansi().fgDefault().a("  - interactive ebean initialiser - " + "v" + Version.getVersion()).reset());
     AnsiConsole.out().println(Ansi.ansi().fgMagenta().a("-------------------------------------------------------------").reset());
   }
-
 
   void outputAllGoodBits() {
 
@@ -343,7 +335,7 @@ public class InteractionHelp {
     }
   }
 
-  String askYesNo(String content) {
+  public String askYesNo(String content) {
     QuestionOptions yn = new QuestionOptions();
     yn.add("Y", "Yes", null);
     yn.add("N", "No", null);
@@ -363,5 +355,26 @@ public class InteractionHelp {
     }
 
     return false;
+  }
+
+  public DetectionMeta meta() {
+    return detection.getMeta();
+  }
+
+  public void setEntityBeanPackage(String entityPackage) {
+    detection.setEntityBeanPackage(entityPackage);
+  }
+
+  public Detection detection() {
+    return detection;
+  }
+
+  public void error(String content) {
+    out.println(Ansi.ansi().fgRed().a(content).reset());
+  }
+
+  public InteractionHelp newLine() {
+    AnsiConsole.out().println();
+    return this;
   }
 }

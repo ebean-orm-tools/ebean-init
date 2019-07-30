@@ -2,9 +2,7 @@ package io.ebean.tools.init;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,25 +17,15 @@ public class Detection {
 
   private final DetectionMeta meta;
 
+  private String databaseDependency;
+
   private boolean ebeanManifestFound;
 
   private boolean mainProperties;
 
   private boolean testProperties;
 
-  /**
-   * logback or log4j.
-   */
-  private String loggerType;
-
-  /**
-   * True when logging file found.
-   */
-  private boolean testLoggingFile;
-
-  /**
-   * True when the logging file contains an entry for io.ebean.SQL.
-   */
+  private LoggingFile testLoggingFile;
   private boolean testLoggingEntry;
 
   private boolean usingQueryBeans;
@@ -59,6 +47,8 @@ public class Detection {
   private SourceMode sourceMode;
 
   private boolean extraOptions;
+
+  private String entityPackage;
 
   public Detection(DetectionMeta meta) {
     this.meta = meta;
@@ -107,10 +97,10 @@ public class Detection {
   }
 
   public String getLoggerType() {
-    return loggerType;
+    return testLoggingFile.getType();
   }
 
-  public boolean isTestLoggingFile() {
+  public LoggingFile getTestLoggingFile() {
     return testLoggingFile;
   }
 
@@ -152,11 +142,15 @@ public class Detection {
 
   public List<String> getDetectedPackages() {
     List<String> list = new ArrayList<>();
-    for (File domainDir : javaDomainDirs) {
-      list.add(diff(meta.getSourceJava(), domainDir));
-    }
-    for (File domainDir : kotlinDomainDirs) {
-      list.add(diff(meta.getSourceKotlin(), domainDir));
+    if (entityPackage != null) {
+      list.add(entityPackage);
+    } else {
+      for (File domainDir : javaDomainDirs) {
+        list.add(diff(meta.getSourceJava(), domainDir));
+      }
+      for (File domainDir : kotlinDomainDirs) {
+        list.add(diff(meta.getSourceKotlin(), domainDir));
+      }
     }
     return list;
   }
@@ -269,32 +263,9 @@ public class Detection {
   private void findTestLoggingFor(String loggingFileName, String loggerType) {
     File logFile = findTestResource(loggingFileName);
     if (logFile != null) {
-      this.testLoggingFile = true;
-      this.loggerType = loggerType;
-      this.testLoggingEntry = detectLoggingEntry(logFile);
+      this.testLoggingFile = new LoggingFile(loggerType, logFile);
+      this.testLoggingEntry = testLoggingFile.containsEbeanEntry();
     }
-  }
-
-  /**
-   * Search logging config file for Ebean logging entry.
-   */
-  private boolean detectLoggingEntry(File logback) {
-    try (LineNumberReader lineReader = new LineNumberReader(new FileReader(logback))) {
-      String logLine;
-      while ((logLine = lineReader.readLine()) != null) {
-        if (containsLoggingEntry(logLine)) {
-          return true;
-        }
-      }
-      return false;
-    } catch (IOException e) {
-      e.printStackTrace();
-      return false;
-    }
-  }
-
-  private boolean containsLoggingEntry(String logLine) {
-    return logLine.contains("io.ebean.SQL");
   }
 
   private File findTestResourceAny(String... names) {
@@ -414,7 +385,6 @@ public class Detection {
 
   public void addedTestLogging() {
     testLoggingEntry = true;
-    testLoggingFile = true;
   }
 
   public void addedGenerateMigration(String name) {
@@ -423,5 +393,21 @@ public class Detection {
 
   public boolean unexpectedLocation() {
     return meta.unexpectedLocation();
+  }
+
+  boolean isNewProject() {
+    return !ebeanManifestFound && !testProperties && meta.isNewProject();
+  }
+
+  public void setEntityBeanPackage(String entityPackage) {
+    this.entityPackage = entityPackage;
+  }
+
+  public void setDatabaseDependency(String databaseDependency) {
+    this.databaseDependency = databaseDependency;
+  }
+
+  public String getDatabaseDependency() {
+    return databaseDependency;
   }
 }

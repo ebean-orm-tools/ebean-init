@@ -21,12 +21,12 @@ public class DoAddMainProperties {
   public void run() {
     File mainResource = detection.getMeta().getMainResource();
     if (mainResource == null || !mainResource.exists()) {
-      help.acknowledge("  Unsuccessful - could not determine the main resources directory");
+      help.ackErr("Unsuccessful - could not determine the main resources directory");
 
     } else {
       File file = copyProperties(mainResource);
       if (file != null) {
-        help.ackDone("  ... added " + file.getAbsolutePath());
+        help.ackDone("... added " + file.getAbsolutePath());
         detection.addedMainProperties();
       }
     }

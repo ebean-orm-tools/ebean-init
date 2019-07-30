@@ -17,33 +17,49 @@ public class DoAddGenerateMigration {
   private final Detection detection;
 
   private final InteractionHelp help;
+  private final DetectionMeta meta;
 
-  public DoAddGenerateMigration(Detection detection, InteractionHelp help) {
-    this.detection = detection;
+  public DoAddGenerateMigration(InteractionHelp help) {
     this.help = help;
+    this.detection = help.detection();
+    this.meta = detection.getMeta();
   }
 
   public void run() {
-
-    DetectionMeta meta = detection.getMeta();
-
     if (detection.isSourceModeKotlin()) {
-      File ktSrc = meta.getSourceTestKotlin();
-      if (ktSrc != null && ktSrc.exists()) {
-        addKotlinGeneration(main(ktSrc));
-        return;
-      } else {
-        help.acknowledge("  WARNING - can not find src/test/kotlin ?");
+      addKotlinGenerateMigration();
+    } else {
+      addJavaGenerateMigration();
+    }
+  }
+
+  private void addJavaGenerateMigration() {
+    File javaSrc = meta.getSourceTestJava();
+    if (javaSrc == null || !javaSrc.exists()) {
+      String yesNo = help.askYesNo("src/test/java does not exist, can we create it?");
+      if (yesNo.equalsIgnoreCase("Yes")) {
+        if (!meta.createSourceTestJava()) {
+          help.ackErr("... failed to create src/test/java directory");
+          return;
+        }
       }
     }
 
-    File javaSrc = meta.getSourceTestJava();
-    if (javaSrc == null || !javaSrc.exists()) {
-      help.acknowledge("  Unsuccessful - can not determine test source root");
-      return;
-    }
+    addJavaGenerator(main(meta.getSourceTestJava()));
+  }
 
-    addJavaGenerator(main(javaSrc));
+  private void addKotlinGenerateMigration() {
+    File ktSrc = meta.getSourceTestKotlin();
+    if (ktSrc == null || !ktSrc.exists()) {
+      String yesNo = help.askYesNo("src/test/kotlin does not exist, can we create it?");
+      if (yesNo.equalsIgnoreCase("Yes")) {
+        if (!meta.createSourceTestKotlin()) {
+          help.ackErr("... failed to create src/test/kotlin directory");
+          return;
+        }
+      }
+    }
+    addKotlinGeneration(main(meta.getSourceTestKotlin()));
   }
 
   private File main(File src) {
@@ -58,7 +74,7 @@ public class DoAddGenerateMigration {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.java");
       FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
-      help.ackDone("  ... added " + mig.getAbsolutePath());
+      help.ackDone("... added GenerateDbMigration.java");
       detection.addedGenerateMigration("GenerateDbMigration.java");
 
     } catch (IOException e) {
@@ -70,7 +86,7 @@ public class DoAddGenerateMigration {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.kt");
       FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
-      help.ackDone("  ... added " + mig.getAbsolutePath());
+      help.ackDone("... added GenerateDbMigration.kt");
       detection.addedGenerateMigration("GenerateDbMigration.kt");
 
     } catch (IOException e) {

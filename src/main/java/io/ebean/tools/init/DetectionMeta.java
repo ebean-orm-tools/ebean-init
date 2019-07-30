@@ -6,6 +6,8 @@ public class DetectionMeta {
 
   private boolean gradle;
   private boolean maven;
+  private MavenPom mavenPom;
+  private GradleBuild gradleBuild;
 
   private File mainResource;
   private File testResource;
@@ -105,11 +107,29 @@ public class DetectionMeta {
 
   public boolean createSrcTestResources() {
     testResource = new File("src/test/resources");
-    if (testResource.mkdir()) {
+    if (testResource.mkdirs()) {
       return true;
     }
 
     testResource = null;
+    return false;
+  }
+
+  public boolean createSourceTestJava() {
+    sourceTestJava = new File("src/test/java");
+    if (sourceTestJava.mkdirs()) {
+      return true;
+    }
+    sourceTestJava = null;
+    return false;
+  }
+
+  public boolean createSourceTestKotlin() {
+    sourceTestKotlin = new File("src/test/kotlin");
+    if (sourceTestKotlin.mkdirs()) {
+      return true;
+    }
+    sourceTestKotlin = null;
     return false;
   }
 
@@ -120,11 +140,30 @@ public class DetectionMeta {
     return !maven && !gradle && sourceJava == null && sourceKotlin == null;
   }
 
-  public void setMaven() {
-    maven = true;
+  public void setMaven(MavenPom mavenPom) {
+    this.maven = true;
+    this.mavenPom = mavenPom;
   }
 
-  public void setGradle() {
+  public void setGradle(GradleBuild gradleBuild) {
+    this.gradleBuild = gradleBuild;
     gradle = true;
+  }
+
+  boolean isNewProject() {
+    if (mavenPom != null) {
+      return mavenPom.isNewProject();
+    } else if (gradleBuild != null) {
+      return gradleBuild.isNewProject();
+    }
+    return false;
+  }
+
+  public MavenPom getMavenPom() {
+    return mavenPom;
+  }
+
+  public GradleBuild getGradleBuild() {
+    return gradleBuild;
   }
 }
