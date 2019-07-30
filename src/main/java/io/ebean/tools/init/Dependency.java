@@ -63,7 +63,7 @@ public class Dependency {
   }
 
   public String gradle(String format) {
-    String gradleScope = (scope == null) ? "implementation" : scope;
+    String gradleScope = (scope == null) ? "compile" : scope;
     return String.format(format, gradleScope, groupId, artifactId, version);
   }
 

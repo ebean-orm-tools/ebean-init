@@ -57,16 +57,16 @@ public class DoGradleBuildUpdate {
 
     final String databaseDependency = help.detection().getDatabaseDependency();
     if (databaseDependency != null) {
-      add.add(new Dependency(databaseDependency));
+      add.add(new Dependency(databaseDependency).withScope("compile"));
     }
     add.add(dep("ebean", "io.ebean:ebean:" + version).withScope("compile"));
     add.add(dep("ebean-querybean", "io.ebean:ebean-querybean:" + version).withScope("compile"));
     if (help.detection().isSourceModeKotlin()) {
-      add.add(dep("kotlin-querybean-generator", "io.ebean:kotlin-querybean-generator:" + version + ":kapt"));
+      add.add(dep("kotlin-querybean-generator", "io.ebean:kotlin-querybean-generator:" + version).withScope("kapt"));
     } else {
-      add.add(dep("querybean-generator", "io.ebean:querybean-generator:" + version + ":annotationProcessor"));
+      add.add(dep("querybean-generator", "io.ebean:querybean-generator:" + version).withScope("annotationProcessor"));
     }
-    add.add(dep("ebean-test", "io.ebean.test:ebean-test-config:" + version + ":testImplementation"));
+    add.add(dep("ebean-test", "io.ebean.test:ebean-test-config:" + version).withScope("testCompile"));
     return add;
   }
 

@@ -9,8 +9,8 @@ repositories {
   mavenCentral()
 }
 dependencies {
-  implementation 'io.ebean:ebean:11.41.1'
-  implementation 'io.ebean:ebean-querybean:11.41.1'
+  compile 'io.ebean:ebean:11.41.1'
+  compile 'io.ebean:ebean-querybean:11.41.1'
   annotationProcessor 'io.ebean:querybean-generator:11.41.1'
-  testImplementation 'io.ebean.test:ebean-test-config:11.41.1'
+  testCompile 'io.ebean.test:ebean-test-config:11.41.1'
 }

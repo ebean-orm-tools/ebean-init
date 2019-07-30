@@ -63,9 +63,9 @@ public class DoMavenPomUpdate {
     add.add(dep("ebean", "io.ebean:ebean:" + version));
     add.add(dep("ebean-querybean", "io.ebean:ebean-querybean:" + version));
     if (!help.detection().isSourceModeKotlin()) {
-      add.add(dep("querybean-generator","io.ebean:querybean-generator:" + version + ":provided", "Annotation processor"));
+      add.add(dep("querybean-generator","io.ebean:querybean-generator:" + version, "Annotation processor").withScope("provided"));
     }
-    add.add(dep("ebean-test","io.ebean.test:ebean-test-config:" + version + ":test", "Test dependencies"));
+    add.add(dep("ebean-test","io.ebean.test:ebean-test-config:" + version, "Test dependencies").withScope("test"));
     return add;
   }
 

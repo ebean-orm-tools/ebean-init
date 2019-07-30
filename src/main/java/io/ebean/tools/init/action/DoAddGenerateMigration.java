@@ -73,8 +73,12 @@ public class DoAddGenerateMigration {
   private void addJavaGenerator(File srcMain) {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.java");
-      FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
-      help.ackDone("... added GenerateDbMigration.java");
+      if (mig.exists()) {
+        help.ackDone("... GenerateDbMigration.java already exists");
+      } else {
+        FileCopy.copy(mig, "/tp-GenerateDbMigration.java");
+        help.ackDone("... added GenerateDbMigration.java");
+      }
       detection.addedGenerateMigration("GenerateDbMigration.java");
 
     } catch (IOException e) {
@@ -85,8 +89,12 @@ public class DoAddGenerateMigration {
   private void addKotlinGeneration(File srcMain) {
     try {
       File mig = new File(srcMain, "GenerateDbMigration.kt");
-      FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
-      help.ackDone("... added GenerateDbMigration.kt");
+      if (mig.exists()) {
+        help.ackDone("... GenerateDbMigration.kt already exists");
+      } else {
+        FileCopy.copy(mig, "/tp-GenerateDbMigration.kt");
+        help.ackDone("... added GenerateDbMigration.kt");
+      }
       detection.addedGenerateMigration("GenerateDbMigration.kt");
 
     } catch (IOException e) {

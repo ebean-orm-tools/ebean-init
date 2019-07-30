@@ -63,8 +63,8 @@ public class GradleBuildWriterTest {
     List<Dependency> add = new ArrayList<>();
     add.add(new Dependency("io.ebean:ebean:11.41.1"));
     add.add(new Dependency("io.ebean:ebean-querybean:11.41.1"));
-    add.add(new Dependency("io.ebean:querybean-generator:11.41.1:annotationProcessor", "Annotation processor"));
-    add.add(new Dependency("io.ebean.test:ebean-test-config:11.41.1:testImplementation", "Test dependencies"));
+    add.add(new Dependency("io.ebean:querybean-generator:11.41.1", "Annotation processor").withScope("annotationProcessor"));
+    add.add(new Dependency("io.ebean.test:ebean-test-config:11.41.1", "Test dependencies").withScope("testCompile"));
     return add;
   }
 }
