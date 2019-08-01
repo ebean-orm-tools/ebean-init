@@ -45,7 +45,7 @@ public class DoAddSampleEntity {
       if (baseModel.ok() && customer.ok() && customerTest.ok()) {
         writeSampleCode("BaseModel", baseModel, mainDir);
         writeSampleCode("Customer", customer, mainDir);
-        writeSampleCode("CustomerTest", customerTest, testDir);
+        writeSampleCode("CustomerTest", customerTest, testDir, true);
         help.ackDone("...added sample code - BaseModel" + suffix + ", Customer" + suffix + " and CustomerTest" + suffix);
 
       } else {
@@ -56,13 +56,21 @@ public class DoAddSampleEntity {
       help.ackDone("Error obtaining sample code - " + e.getMessage());
     }
   }
-
   private void writeSampleCode(String baseModel, HttpGet.Response res, File dir) throws IOException {
+    writeSampleCode(baseModel, res, dir, false);
+  }
+
+  private void writeSampleCode(String baseModel, HttpGet.Response res, File dir, boolean test) throws IOException {
 
     File out = new File(dir, baseModel + suffix());
 
     try (FileWriter writer = new FileWriter(out)) {
-      writer.append("package ").append(entityPackage).append(";").append(NEWLINE);
+      String end = java ? ";" : "";
+      writer.append("package ").append(entityPackage).append(end).append(NEWLINE);
+      if (test) {
+        writer.append(NEWLINE);
+        writer.append("import ").append(entityPackage).append(".query.QCustomer").append(end).append(NEWLINE);
+      }
       writer.append(res.getContent());
     }
   }

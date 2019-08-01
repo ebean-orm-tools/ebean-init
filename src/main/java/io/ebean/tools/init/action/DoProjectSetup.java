@@ -66,7 +66,7 @@ public class DoProjectSetup {
 
     help.newLine();
     help.newLine();
-    help.question("Right, you are all set to go.");
+    help.question("Please re-build the project and then you are all set to go.");
     help.question("You can re-run ebeaninit later to generate finders if you like.");
     help.newLine();
     help.question("Try running CustomerTest ...");

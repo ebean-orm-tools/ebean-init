@@ -7,7 +7,7 @@ import java.util.List;
 
 public class LoggingFileWriter {
 
-  private static final String[] logEntries = {"io.ebean.docker","io.ebean.DDL","io.ebean.SQL","io.ebean.TXN","io.ebean.SUM","io.ebean.cache"};
+  private static final String[] logEntries = {"io.ebean.docker","io.ebean.DDL","io.ebean.SQL","io.ebean.TXN","io.ebean.cache"};
 
   private final String newLine = "\n";
 
