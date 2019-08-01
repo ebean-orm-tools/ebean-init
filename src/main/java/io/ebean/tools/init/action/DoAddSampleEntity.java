@@ -26,8 +26,10 @@ public class DoAddSampleEntity {
 
   public void run() {
 
-    entityPackage = help.ask("Enter a package that will contain the entity beans");
-
+    entityPackage = help.ask("Enter a package that will contain the entity beans (e.g. org.myapp.domain)");
+    if (entityPackage.isEmpty()) {
+      entityPackage = "org.myapp.domain";
+    }
     help.setEntityBeanPackage(entityPackage);
     addEntitySample();
   }
@@ -67,10 +69,10 @@ public class DoAddSampleEntity {
     try (FileWriter writer = new FileWriter(out)) {
       String end = java ? ";" : "";
       writer.append("package ").append(entityPackage).append(end).append(NEWLINE);
-      if (test) {
-        writer.append(NEWLINE);
-        writer.append("import ").append(entityPackage).append(".query.QCustomer").append(end).append(NEWLINE);
-      }
+//      if (test) {
+//        writer.append(NEWLINE);
+//        writer.append("import ").append(entityPackage).append(".query.QCustomer").append(end).append(NEWLINE);
+//      }
       writer.append(res.getContent());
     }
   }
@@ -84,7 +86,7 @@ public class DoAddSampleEntity {
   }
 
   private File baseSourceTestDir() {
-    return java ? meta.getSourceTestJava() : meta.getSourceTestKotlin();
+    return java ? meta.getSourceTestJavaWithCreate() : meta.getSourceTestKotlinWithCreate();
   }
 
   private File makeMainPackageDir() {

@@ -115,6 +115,23 @@ public class DetectionMeta {
     return false;
   }
 
+
+  public File getSourceTestKotlinWithCreate() {
+    if (sourceTestKotlin == null) {
+      sourceTestKotlin = new File("src/test/kotlin");
+      sourceTestKotlin.mkdirs();
+    }
+    return sourceTestKotlin;
+  }
+
+  public File getSourceTestJavaWithCreate() {
+    if (sourceTestJava == null) {
+      sourceTestJava = new File("src/test/java");
+      sourceTestJava.mkdirs();
+    }
+    return sourceTestJava;
+  }
+
   public boolean createSourceTestJava() {
     sourceTestJava = new File("src/test/java");
     if (sourceTestJava.mkdirs()) {
@@ -166,4 +183,5 @@ public class DetectionMeta {
   public GradleBuild getGradleBuild() {
     return gradleBuild;
   }
+
 }

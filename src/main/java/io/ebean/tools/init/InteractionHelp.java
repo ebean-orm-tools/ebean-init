@@ -34,18 +34,18 @@ public class InteractionHelp {
     return actions.continueState();
   }
 
-  public void lines(String... lines) {
-    out.println();
-    for (String line : lines) {
-      out.println(Ansi.ansi().fgGreen().a("  "+line));
-    }
-  }
+//  public void lines(String... lines) {
+//    out.println();
+//    for (String line : lines) {
+//      out.println(Ansi.ansi().fgGreen().a("  "+line));
+//    }
+//  }
 
   public boolean setupProject() {
 
     question("It looks like Ebean is not configured for this project.");
     String yesNo = askYesNo("Do you want to run project setup to add dependencies and configuration ?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoProjectSetup(this).run();
       return true;
     }
@@ -61,7 +61,7 @@ public class InteractionHelp {
     out.println();
 
     String yesNo = askYesNo("create marker file ~/.ebean/ignore-docker-shutdown ?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoLocalDevelopment().run(this);
     }
   }
@@ -72,7 +72,7 @@ public class InteractionHelp {
     File mainResource = meta.getMainResource();
     if (mainResource == null || !mainResource.exists()) {
       String yesNo = askYesNo("src/main/resource does not exist, can we create it?");
-      if (yesNo.equalsIgnoreCase("Yes")) {
+      if (isYes(yesNo)) {
         if (!meta.createSrcMainResources()) {
           ackErr("... failed to create src/main/resource directory");
         }
@@ -82,12 +82,16 @@ public class InteractionHelp {
     File testResource = meta.getTestResource();
     if (testResource == null || !testResource.exists()) {
       String yesNo = askYesNo("src/test/resources does not exist, can we create it?");
-      if (yesNo.equalsIgnoreCase("Yes")) {
+      if (isYes(yesNo)) {
         if (!meta.createSrcTestResources()) {
           ackErr("... failed to create src/test/resources directory");
         }
       }
     }
+  }
+
+  private boolean isYes(String yesNo) {
+    return yesNo.equalsIgnoreCase("Yes") || yesNo.equals("");
   }
 
   public void questionTransactionalPackage() {
@@ -111,6 +115,9 @@ public class InteractionHelp {
     question("Select the top level package @Transactional is used");
     outOps(options);
     String answer = askKey("Select an option:", options);
+    if ("".equals(answer)) {
+      answer = (topPackage != null) ? "0" : "1";
+    }
     QuestionOptions.Option fullAnswer = options.selected(answer);
 
     if (isContinue()) {
@@ -152,7 +159,7 @@ public class InteractionHelp {
       options.addAll(list);
 
       question("Select a package that will contain the entity beans");
-      QuestionOptions.Option answer = outOptions(options);
+      QuestionOptions.Option answer = outOptions(options, "0");
 
       if ("Other".equalsIgnoreCase(answer.text)) {
         q_enterEntityPackage();
@@ -162,7 +169,7 @@ public class InteractionHelp {
   }
 
   private void q_enterEntityPackage() {
-    String answer = ask("Enter a package that will contain the entity beans");
+    String answer = ask("Enter a package that will contain the entity beans (e.g. org.myapp.domain)");
     actions.setManifestEntityPackage(answer);
   }
 
@@ -171,10 +178,13 @@ public class InteractionHelp {
     actions.setManifestTransactionalPackage(answer);
   }
 
-  public QuestionOptions.Option outOptions(QuestionOptions options) {
+  public QuestionOptions.Option outOptions(QuestionOptions options, String defaultKey) {
 
     outOps(options);
     String answer = askKey("Select an option:", options);
+    if ((answer == null || answer.equals("")) && defaultKey != null) {
+      answer = defaultKey;
+    }
     return options.selected(answer);
   }
 

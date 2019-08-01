@@ -62,7 +62,7 @@
       <plugin>
         <groupId>io.avaje.maven</groupId>
         <artifactId>tiles-maven-plugin</artifactId>
-        <version>2.15</version>
+        <version>1.2</version>
         <extensions>true</extensions>
         <configuration>
           <tiles>

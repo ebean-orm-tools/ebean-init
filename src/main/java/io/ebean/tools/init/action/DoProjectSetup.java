@@ -24,42 +24,42 @@ public class DoProjectSetup {
     final MavenPom mavenPom = meta.getMavenPom();
     if (mavenPom != null) {
       String yesNo = help.newLine().askYesNo("Add dependencies and enhancement plugin to pom?");
-      if (yesNo.equalsIgnoreCase("Yes")) {
+      if (isYes(yesNo)) {
         new DoMavenPomUpdate(help).run(mavenPom);
       }
     } else {
       final GradleBuild gradleBuild = meta.getGradleBuild();
       if (gradleBuild != null) {
         String yesNo = help.newLine().askYesNo("Add dependencies and enhancement plugin to gradle build?");
-        if (yesNo.equalsIgnoreCase("Yes")) {
+        if (isYes(yesNo)) {
           new DoGradleBuildUpdate(help).run(gradleBuild);
         }
       }
     }
 
     String yesNo = help.newLine().askYesNo("Add a sample Entity bean?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoAddSampleEntity(help).run();
     }
 
     yesNo = help.newLine().askYesNo("Add ebean.mf manifest to control enhancement?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoAddManifest(help).run();
     }
 
     yesNo = help.newLine().askYesNo("Add application-test.yaml to configure testing?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoAddTestResource(help).addApplicationTestYml();
     }
 
     yesNo = help.newLine().askYesNo("Add GenerateDbMigration to generate database migrations?");
-    if (yesNo.equalsIgnoreCase("Yes")) {
+    if (isYes(yesNo)) {
       new DoAddGenerateMigration(help).run();
     }
 
     if (!help.detection().isTestLoggingEntry()) {
       yesNo = help.newLine().askYesNo("Add logback-test.xml entry for logging SQL, Transactions etc during testing?");
-      if (yesNo.equalsIgnoreCase("Yes")) {
+      if (isYes(yesNo)) {
         new DoAddTestResource(help).addLogbackTest();
       }
     }
@@ -74,6 +74,10 @@ public class DoProjectSetup {
     help.newLine();
   }
 
+  private boolean isYes(String yesNo) {
+    return yesNo.equalsIgnoreCase("Yes") || yesNo.equalsIgnoreCase("");
+  }
+
   private void askJavaOrKotlin() {
 
     QuestionOptions options = new QuestionOptions();
@@ -83,7 +87,7 @@ public class DoProjectSetup {
     String answer = help.newLine().ask("Using Java or Kotlin?", options);
     answer = answer.toLowerCase();
 
-    if (answer.startsWith("j")) {
+    if (answer.startsWith("j") || answer.equals("")) {
       help.detection().setSourceMode(SourceMode.JAVA);
     } else if (answer.startsWith("k")) {
       help.detection().setSourceMode(SourceMode.KOTLIN);

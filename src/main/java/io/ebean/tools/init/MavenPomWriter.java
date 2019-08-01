@@ -61,7 +61,7 @@ public class MavenPomWriter {
 
     } else {
       final int buildPluginsStart = pom.getBuildPluginsStart();
-      tilesPlugin = new MavenPom.MavenPlugin(buildPluginsStart, "io.avaje.maven", "tiles-maven-plugin", "2.15");
+      tilesPlugin = new MavenPom.MavenPlugin(buildPluginsStart, "io.avaje.maven", "tiles-maven-plugin", "1.2"); //2.15
 
       if (buildPluginsStart > 1) {
         // insert into <build><plugins>

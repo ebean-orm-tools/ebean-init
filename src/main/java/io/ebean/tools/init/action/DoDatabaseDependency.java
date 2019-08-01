@@ -28,13 +28,15 @@ public class DoDatabaseDependency {
     help.question("Add JDBC driver dependency?");
     help.outOps(options);
     String answer = help.askKey("Select an option:", options);
-    QuestionOptions.Option fullAnswer = options.selected(answer);
-    if (fullAnswer != null && !fullAnswer.key.equals("0")) {
-      final String driver = obtainDriverDependency(fullAnswer.key);
-      if (driver == null) {
-        help.error("Sorry, Failed to obtain driver. Please add the dependency manually");
-      } else {
-        help.detection().setDatabaseDependency(driver);
+    if (!answer.equals("")) {
+      QuestionOptions.Option fullAnswer = options.selected(answer);
+      if (fullAnswer != null && !fullAnswer.key.equals("0")) {
+        final String driver = obtainDriverDependency(fullAnswer.key);
+        if (driver == null) {
+          help.error("Sorry, Failed to obtain driver. Please add the dependency manually");
+        } else {
+          help.detection().setDatabaseDependency(driver);
+        }
       }
     }
   }
