@@ -106,7 +106,7 @@ public class InteractionHelp {
     }
 
     QuestionOptions options = new QuestionOptions();
-    if (topPackage != null) {
+    if (topPackage != null && !topPackage.isEmpty()) {
       options.add("0", topPackage, null);
     }
     options.add("1", "Other", null);

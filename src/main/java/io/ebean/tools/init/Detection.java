@@ -194,9 +194,12 @@ public class Detection {
   /**
    * Return the package based on the 2 directories.
    */
-  private String diff(File top, File sub) {
+  String diff(File top, File sub) {
     if (top == null || sub == null) {
       return null;
+    }
+    if (sub.getPath().length() <= top.getPath().length()) {
+      return "";
     }
     String relative = sub.getPath().substring(top.getPath().length() + 1);
     return relative.replace(File.separatorChar, '.');
