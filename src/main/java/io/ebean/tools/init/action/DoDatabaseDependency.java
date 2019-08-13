@@ -19,10 +19,12 @@ public class DoDatabaseDependency {
     options.add("0", "No, I'll add it myself", null);
     options.add("P", "Postgres", null);
     options.add("M", "MySql or MariaDB", null);
+    options.add("N", "NuoDB", null);
     options.add("S", "SQL Server", null);
     options.add("O", "Oracle", null);
     options.add("H", "Hana", null);
     options.add("C", "Clickhouse", null);
+    options.add("R", "Cockroach", null);
     options.add("L", "Sqlite", null);
 
     help.question("Add JDBC driver dependency?");
@@ -51,6 +53,8 @@ public class DoDatabaseDependency {
         return drivers.get("postgres");
       case "M":
         return drivers.get("mysql");
+      case "N":
+        return drivers.get("nuodb");
       case "S":
         return drivers.get("sqlserver");
       case "O":
@@ -59,6 +63,8 @@ public class DoDatabaseDependency {
         return drivers.get("hana");
       case "C":
         return drivers.get("clickhouse");
+      case "R":
+        return drivers.get("cockroach");
       case "L":
         return drivers.get("sqlite");
       default:
