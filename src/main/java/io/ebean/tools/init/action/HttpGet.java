@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class HttpGet {
 
-  private static final String host = "http://localhost/sample-source/";
+  private static final String host = "https://ebean.io/sample-source/";
 
   private static final String NEWLINE = "\n";
 
