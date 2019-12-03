@@ -110,10 +110,7 @@ public class DoGenerate {
     if (touchedClasses != null) {
       config.setEntityClassFiles(touchedClasses);
     }
-    config.setAddFinderWherePublic(true);
     config.setOverwriteExistingFinders(false);
-    config.setAddFinderWhereMethod(false);
-    config.setAddFinderTextMethod(false);
     return config;
   }
 
